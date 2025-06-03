@@ -1,15 +1,48 @@
 @import "tailwindcss";
 
 body {
-  @apply m-0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+#app {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pixel {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+@font-face {
+  font-family: "Tiny5";
+  src: url("/src/assets/fonts/Tiny5.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Jura";
+  src: url("/src/assets/fonts/Jura.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "PixelifySans";
+  src: url("/src/assets/fonts/PixelifySans.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+::placeholder {
+  color: gray;
+  opacity: 1;
+  font-family: "PixelifySans";
 }

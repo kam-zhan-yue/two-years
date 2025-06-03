@@ -1,3 +1,4 @@
+import { Boot } from "@/game/boot"
 import { Main } from "@/game/main"
 import { constants } from "@/helpers/constants"
 import Phaser from "phaser"
@@ -7,6 +8,7 @@ const Game = () => {
   const phaserGameRef = useRef<Phaser.Game>(null)
 
   useEffect(() => {
+    const boot = new Boot()
     const main = new Main()
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -26,7 +28,7 @@ const Game = () => {
           gravity: { x: 0, y: 0 },
         },
       },
-      scene: [main],
+      scene: [boot, main],
     }
 
     const game = new Phaser.Game(config)
