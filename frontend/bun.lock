@@ -12,6 +12,7 @@
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "tailwindcss": "^4.0.6",
+        "zod": "^3.25.49",
         "zustand": "^5.0.5",
       },
       "devDependencies": {
