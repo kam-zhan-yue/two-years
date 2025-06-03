@@ -1,73 +1,72 @@
 import Character from "./character";
-import type InputHandler from "./input-hander";
+import type InputHandler from "../handlers/input-hander";
+import { constants } from "@/helpers/constants";
+import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
+import { MessageType, PlayerMessageSchema } from "../types/messages";
 
 export default class Player extends Character {
-  private lastFacingDirection: "up" | "down" | "left" | "right";
+  private id: string
   private inputHandler: InputHandler
+  private send: SendJsonMessage
 
   constructor(
+    id: string,
     physics: Phaser.Physics.Arcade.ArcadePhysics,
     position: Phaser.Math.Vector2,
     textureKey: string,
-    inputHandler: InputHandler
+    inputHandler: InputHandler,
+    send: SendJsonMessage
   ) {
     super(physics, position, textureKey)
-    this.lastFacingDirection = 'down'
+    this.id = id
     this.inputHandler = inputHandler
+    this.send = send
   }
 
   checkInputs() {
-    const speed = 100;
-
+    const speed = constants.speed
     let x: number = 0;
     let y: number = 0;
 
     //Handle speed
     if (this.inputHandler.isLeft()) {
-      x = -speed;
-      this.body.setVelocity(-speed, 0);
-      this.lastFacingDirection = "left";
-    } else if (this.inputHandler.isRight()) {
-      x = speed;
-      this.body.setVelocity(speed, 0);
-      this.lastFacingDirection = "right";
+      x += -speed;
+    }
+    if (this.inputHandler.isRight()) {
+      x += speed;
     }
     if (this.inputHandler.isUp()) {
-      y = -speed;
-      this.body.setVelocity(0, -speed);
-      this.lastFacingDirection = "up";
-    } else if (this.inputHandler.isDown()) {
-      y = speed;
-      this.body.setVelocity(0, speed);
-      this.lastFacingDirection = "down";
+      y += -speed;
     }
-
+    if (this.inputHandler.isDown()) {
+      y += speed;
+    }
+    if (y < 0) this.animation = 'up';
+    else if (y > 0) this.animation = 'down'
+    else if (x < 0) this.animation = 'left'
+    else if (x > 0) this.animation = 'right'
     //Handle animations
-    if (y < 0) this.body.anims.play("player-run-up", true);
-    else if (y > 0) this.body.anims.play("player-run-down", true);
-    else if (x < 0) this.body.anims.play("player-run-left", true);
-    else if (x > 0) this.body.anims.play("player-run-right", true);
     if (x === 0 && y === 0) {
-      this.idle();
+      this.body.setVelocity(0, 0);
+      this.play('player-idle')
+    } else {
+      this.body.setVelocity(x, y);
+      this.play('player-run')
     }
-    this.body.setVelocity(x, y);
+    this.sendMessage()
   }
 
-  idle() {
-    this.body.setVelocity(0, 0);
-    switch (this.lastFacingDirection) {
-      case "up":
-        this.body.anims.play("player-idle-up", true);
-        break;
-      case "down":
-        this.body.anims.play("player-idle-down", true);
-        break;
-      case "left":
-        this.body.anims.play("player-idle-left", true);
-        break;
-      case "right":
-        this.body.anims.play("player-idle-right", true);
-        break;
+  sendMessage() {
+    const data = {
+      message_id: MessageType.player,
+      player_id: this.id,
+      animation: this.animation
+    }
+    try {
+      PlayerMessageSchema.parse(data)
+      this.send(data)
+    } catch (error) {
+      console.error("Validation failed for player message: ", error);
     }
   }
 

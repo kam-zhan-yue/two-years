@@ -1,11 +1,20 @@
+import { WS_URL } from "@/api/constants"
 import { Boot } from "@/game/boot"
 import { Main } from "@/game/main"
+import { GameStateSchema, type GameState } from "@/game/types/game-state"
 import { constants } from "@/helpers/constants"
+import { useGameStore } from "@/store"
 import Phaser from "phaser"
-import { useEffect, useRef } from "react"
+import { useEffect, useState } from "react"
+import useWebSocket from "react-use-websocket"
 
 const Game = () => {
-  const phaserGameRef = useRef<Phaser.Game>(null)
+  const [socketUrl, setSocketUrl] = useState("wss://echo.websocket.org");
+  const setGameState = useGameStore((state) => state.setGameState)
+  const playerId = useGameStore((state) => state.playerId)
+  const game = useGameStore((state) => state.game)
+  const setGame = useGameStore((state) => state.setGame)
+  const { sendJsonMessage, lastJsonMessage } = useWebSocket(socketUrl, {}, true)
 
   useEffect(() => {
     const boot = new Boot()
@@ -31,13 +40,36 @@ const Game = () => {
       scene: [boot, main],
     }
 
-    const game = new Phaser.Game(config)
-    phaserGameRef.current = game
+    const phaserGame = new Phaser.Game(config)
+    setGame(main)
 
     return () => {
-      game.destroy(true)
+      phaserGame.destroy(true)
     }
-  }, [])
+  }, [sendJsonMessage, setGame])
+
+  useEffect(() => {
+    if (game && playerId !== '0') {
+      setSocketUrl(WS_URL + '/' + playerId)
+      game.initPlayer(playerId, sendJsonMessage)
+    }
+  }, [playerId, game, sendJsonMessage])
+
+  useEffect(() => {
+    // Ignore messages from the echo site, as it is for setup only
+    if (socketUrl === "wss://echo.websocket.org") return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const json = lastJsonMessage as any;
+    if (json) {
+      const parsed = GameStateSchema.safeParse(json);
+      if (!parsed.success) {
+        console.error("Invalid game state:", parsed.error);
+        return;
+      }
+      const gameState = parsed.data as GameState;
+      setGameState(gameState);
+    }
+  }, [setGameState, lastJsonMessage, socketUrl]);
 
   return (
     <div id="game-container" />
