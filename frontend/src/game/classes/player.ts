@@ -51,12 +51,12 @@ export default class Player extends Character {
       this.body.setVelocity(0, 0);
       this.play("player-idle");
     } else {
+      this.sendMessage();
       const direction = new PhaserMath.Vector2(x, y).normalize();
       const velocity = direction.scale(constants.speed);
       this.body.setVelocity(velocity.x, velocity.y);
       this.play("player-run");
     }
-    this.sendMessage();
   }
 
   getPos() {
