@@ -1,4 +1,10 @@
-use rocket::futures::{SinkExt, StreamExt};
+mod game;
+
+use game::Game;
+use rocket::{
+    futures::{SinkExt, StreamExt},
+    State,
+};
 
 #[macro_use]
 extern crate rocket;
@@ -10,7 +16,11 @@ fn index() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index, echo_stream, game_stream])
+    let game: Game = Game::default();
+
+    rocket::build()
+        .mount("/", routes![index, echo_stream, game_stream])
+        .manage(game)
 }
 
 #[get("/echo")]
@@ -29,7 +39,7 @@ fn echo_stream(ws: ws::WebSocket) -> ws::Stream!['static] {
 }
 
 #[get("/game_state/<player_id>")]
-fn game_stream(ws: ws::WebSocket, player_id: &str) -> ws::Channel<'static> {
+fn game_stream(ws: ws::WebSocket, game: State<Game>, player_id: &str) -> ws::Channel<'static> {
     ws.channel(move |mut stream| {
         Box::pin(async move {
             while let Some(message) = stream.next().await {
