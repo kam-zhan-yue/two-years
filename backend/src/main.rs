@@ -1,52 +1,42 @@
-mod game;
-
-use game::Game;
-use rocket::{
-    futures::{SinkExt, StreamExt},
-    State,
+use axum::{
+    http::StatusCode,
+    routing::{get, post},
+    Json, Router,
 };
+use serde::{Deserialize, Serialize};
 
-#[macro_use]
-extern crate rocket;
-
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
+#[tokio::main]
+async fn main() {
+    let app = Router::new()
+        .route("/", get(root))
+        .route("/new", get(root))
+        .route("/users", post(create_user));
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
 
-#[launch]
-fn rocket() -> _ {
-    let game: Game = Game::default();
-
-    rocket::build()
-        .mount("/", routes![index, echo_stream, game_stream])
-        .manage(game)
+async fn root() -> &'static str {
+    println!("What!");
+    "Hello, World!"
 }
 
-#[get("/echo")]
-fn echo_stream(ws: ws::WebSocket) -> ws::Stream!['static] {
-    let ws = ws.config(ws::Config {
-        write_buffer_size: 10usize,
-        max_write_buffer_size: 100usize,
-        ..Default::default()
-    });
+async fn create_user(Json(payload): Json<CreateUser>) -> (StatusCode, Json<User>) {
+    println!("What!");
+    let user = User {
+        id: 1337,
+        username: payload.username,
+    };
 
-    ws::Stream! { ws =>
-        for await message in ws {
-            yield message?;
-        }
-    }
+    (StatusCode::CREATED, Json(user))
 }
 
-#[get("/game_state/<player_id>")]
-fn game_stream(ws: ws::WebSocket, game: State<Game>, player_id: &str) -> ws::Channel<'static> {
-    ws.channel(move |mut stream| {
-        Box::pin(async move {
-            while let Some(message) = stream.next().await {
-                println!("Got a message!");
-                let _ = stream.send(message?).await;
-            }
-            Ok(())
-        })
-    })
+#[derive(Deserialize)]
+struct CreateUser {
+    username: String,
+}
+
+#[derive(Serialize)]
+struct User {
+    id: u64,
+    username: String,
 }

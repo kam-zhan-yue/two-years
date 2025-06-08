@@ -2,13 +2,21 @@ use rocket::serde::Serialize;
 
 pub struct Game {
     pub game_state: GameState,
+    pub seconds: i64,
 }
 
 impl Default for Game {
     fn default() -> Self {
         Self {
             game_state: GameState::default(),
+            seconds: 0i64,
         }
+    }
+}
+
+impl Game {
+    pub fn update(&mut self) {
+        self.game_state.update();
     }
 }
 
@@ -26,6 +34,10 @@ impl Default for GameState {
             player_two: None,
         }
     }
+}
+
+impl GameState {
+    pub fn update(&mut self) {}
 }
 
 #[derive(Serialize, Debug)]
