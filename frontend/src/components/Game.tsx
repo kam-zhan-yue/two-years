@@ -64,8 +64,10 @@ const Game = () => {
     if (socketUrl === "wss://echo.websocket.org") {
       return;
     }
+
+    if (!lastJsonMessage) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    console.log(lastJsonMessage);
+    console.log(socketUrl, lastJsonMessage);
     const json = lastJsonMessage as any;
     if (json) {
       const parsed = GameStateSchema.safeParse(json);
@@ -73,6 +75,7 @@ const Game = () => {
         console.error("Invalid game state:", parsed.error);
         return;
       }
+      console.log("Parsed", parsed.data);
       const gameState = parsed.data as GameState;
       setGameState(gameState);
     }

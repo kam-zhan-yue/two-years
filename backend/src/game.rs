@@ -9,6 +9,15 @@ pub struct GameState {
     pub tx: broadcast::Sender<String>,
 }
 
+impl GameState {
+    pub fn update(&mut self) {
+        self.tick += 1;
+        self.tx
+            .send(String::from(format!("Tick is {}", self.tick)))
+            .unwrap();
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Game {}
 

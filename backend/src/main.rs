@@ -12,6 +12,7 @@ use axum::{
     Router,
 };
 use futures_util::{
+    lock::Mutex,
     stream::{SplitSink, SplitStream, StreamExt},
     SinkExt,
 };
@@ -24,7 +25,8 @@ use crate::game::{Game, GameState};
 
 #[tokio::main]
 async fn main() {
-    let game_router: Router<Arc<GameState>> = Router::new().route("/game/{id}", any(game_loop));
+    let game_router: Router<Arc<Mutex<GameState>>> =
+        Router::new().route("/game/{id}", any(game_loop));
 
     let api_router = Router::new()
         .route("/", get(root))
@@ -32,11 +34,13 @@ async fn main() {
 
     let (tx, _rx) = broadcast::channel(100);
 
-    let game_state = Arc::new(GameState {
+    let game_state = Arc::new(Mutex::new(GameState {
         game: Game::default(),
         tick: 0,
         tx: tx,
-    });
+    }));
+
+    let game = Arc::clone(&game_state);
 
     let router = Router::new()
         .merge(api_router)
@@ -47,16 +51,19 @@ async fn main() {
         .unwrap();
     println!("Listening on http://127.0.0.1:8000");
 
-    // let game = game_state.clone();
-    // tokio::spawn(async move {
-    //     println!("Starting game loop!");
-    //     let tick_duration = Duration::from_secs_f64(1_f64 / game::TICKS_PER_SECOND);
-    //     let mut tick_interval = interval(tick_duration);
-    //     loop {
-    //         game.tick += 1;
-    //         tick_interval.tick().await;
-    //     }
-    // });
+    tokio::spawn(async move {
+        println!("Starting game loop!");
+        let tick_duration = Duration::from_secs_f64(1_f64 / game::TICKS_PER_SECOND);
+        let mut tick_interval = interval(tick_duration);
+        loop {
+            // Block so that the lock drops after completion
+            {
+                let mut game_thread = game.lock().await;
+                game_thread.update();
+            }
+            tick_interval.tick().await;
+        }
+    });
 
     axum::serve(listener, router).await.unwrap();
 }
@@ -68,42 +75,51 @@ async fn root() -> &'static str {
 
 async fn game_loop(
     ws: WebSocketUpgrade,
-    State(game): State<Arc<GameState>>,
+    State(game): State<Arc<Mutex<GameState>>>,
     Path(id): Path<u64>,
 ) -> Response {
-    ws.on_upgrade(|socket| game_websocket(socket, game, id))
+    ws.on_upgrade(move |socket| game_websocket(socket, game, id))
 }
 
-async fn game_websocket(socket: WebSocket, game: Arc<GameState>, id: u64) {
+async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64) {
+    println!("Connected {}", id);
     let (sender, receiver) = socket.split();
 
     // Subscribe to the game loop broadcast
-    let rx = game.tx.subscribe();
-    let msg = format!("Player {} Joined.", id);
-    let _ = game.tx.send(msg);
-
-    tokio::spawn(write(sender, rx));
-    tokio::spawn(read(receiver, game, id));
+    let game_clone = game.clone();
+    println!("Trying to read");
+    {
+        let game_thread = game_clone.lock().await;
+        println!("Yielded");
+        let rx = game_thread.tx.subscribe();
+        let msg = format!("Player {} Joined.", id);
+        println!("{}", msg);
+        let _ = game_thread.tx.send(msg);
+        tokio::spawn(write(sender, rx));
+        tokio::spawn(read(receiver, game, id));
+    }
 }
 
 async fn write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<String>) {
     // Send over all game loop broadcasts
     while let Ok(msg) = rx.recv().await {
         // In any websocket error, break loop
+        // println!("Sending {}", msg);
         if sender.send(Message::text(msg)).await.is_err() {
             break;
         }
     }
 }
 
-async fn read(mut receiver: SplitStream<WebSocket>, game: Arc<GameState>, id: u64) {
+async fn read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<GameState>>, id: u64) {
     while let Some(msg) = receiver.next().await {
         let msg = if let Ok(msg) = msg {
+
             // process the message here for the game state
         } else {
             // client disconnected
             return;
-        }
+        };
     }
 }
 
@@ -112,17 +128,11 @@ async fn game_handler(ws: WebSocketUpgrade) -> Response {
 }
 
 async fn handle_socket(mut socket: WebSocket) {
-    while let Some(msg) = socket.recv().await {
-        let msg = if let Ok(msg) = msg {
-            msg
-        } else {
-            // client disconnected
-            return;
-        };
-
-        if socket.send(msg).await.is_err() {
-            //client disconnected
-            return;
-        }
+    for i in 0..10 {
+        println!("Send {} times", i);
+        socket
+            .send(Message::from(format!("Test {}", i)))
+            .await
+            .unwrap();
     }
 }
