@@ -1,4 +1,6 @@
 mod game;
+mod payload;
+mod types;
 
 use std::{sync::Arc, time::Duration};
 
@@ -60,7 +62,7 @@ async fn main() {
             // Block so that the lock drops after completion
             {
                 let mut game_thread = game.lock().await;
-                game_thread.update();
+                game_thread.server_update();
             }
             tick_interval.tick().await;
         }
@@ -70,7 +72,6 @@ async fn main() {
 }
 
 async fn root() -> &'static str {
-    println!("What!");
     "Hello, World!"
 }
 
@@ -90,12 +91,11 @@ async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64)
     let game_clone = game.clone();
     println!("Trying to read");
     {
-        let game_thread = game_clone.lock().await;
+        let mut game_thread = game_clone.lock().await;
         println!("Yielded");
         let rx = game_thread.tx.subscribe();
-        let msg = format!("Player {} Joined.", id);
-        println!("{}", msg);
-        let _ = game_thread.tx.send(msg);
+        println!("Player {} Joined", id);
+        game_thread.connect(id);
         tokio::spawn(write(sender, rx));
         tokio::spawn(read(receiver, game, id));
     }
@@ -104,9 +104,12 @@ async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64)
 async fn write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<String>) {
     // Send over all game loop broadcasts
     while let Ok(msg) = rx.recv().await {
+        let json = json!({
+            "message": msg,
+        });
+        let json_string = serde_json::to_string(&json).unwrap();
         // In any websocket error, break loop
-        // println!("Sending {}", msg);
-        if sender.send(Message::text(msg)).await.is_err() {
+        if sender.send(Message::text(json_string)).await.is_err() {
             break;
         }
     }
@@ -114,11 +117,21 @@ async fn write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<Strin
 
 async fn read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<GameState>>, id: u64) {
     while let Some(msg) = receiver.next().await {
-        let msg = if let Ok(msg) = msg {
-
-            // process the message here for the game state
+        let mut game_ref = game.lock().await;
+        if let Ok(msg) = msg {
+            match msg {
+                Message::Text(text) => {
+                    game_ref.client_update(id, text.as_str());
+                }
+                Message::Close(_) => {
+                    // client disconnected
+                    game_ref.disconnect(id);
+                }
+                _ => {}
+            }
         } else {
             // client disconnected
+            game_ref.disconnect(id);
             return;
         };
     }
@@ -129,16 +142,9 @@ async fn game_handler(ws: WebSocketUpgrade) -> Response {
 }
 
 async fn handle_socket(mut socket: WebSocket) {
-    for i in 0..10 {
-        // Create a JSON object using serde_json
-        let json = json!({
-            "message": format!("Test {}", i),
-        });
-
-        // Serialize the JSON object to a string
-        let json_string = serde_json::to_string(&json).unwrap();
-
-        // Send the serialized JSON string over the WebSocket
-        socket.send(Message::text(json_string)).await.unwrap();
-    }
+    let json = json!({
+        "message": "Connected!",
+    });
+    let json_string = serde_json::to_string(&json).unwrap();
+    socket.send(Message::text(json_string)).await.unwrap();
 }
