@@ -16,6 +16,7 @@ use futures_util::{
     stream::{SplitSink, SplitStream, StreamExt},
     SinkExt,
 };
+use serde_json::json;
 use tokio::{
     sync::broadcast::{self, Receiver},
     time::interval,
@@ -129,10 +130,15 @@ async fn game_handler(ws: WebSocketUpgrade) -> Response {
 
 async fn handle_socket(mut socket: WebSocket) {
     for i in 0..10 {
-        println!("Send {} times", i);
-        socket
-            .send(Message::from(format!("Test {}", i)))
-            .await
-            .unwrap();
+        // Create a JSON object using serde_json
+        let json = json!({
+            "message": format!("Test {}", i),
+        });
+
+        // Serialize the JSON object to a string
+        let json_string = serde_json::to_string(&json).unwrap();
+
+        // Send the serialized JSON string over the WebSocket
+        socket.send(Message::text(json_string)).await.unwrap();
     }
 }
