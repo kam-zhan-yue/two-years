@@ -1,20 +1,24 @@
 import { Math, Scene } from "phaser";
 import GameImage from "./classes/game-image";
 import Player from "./classes/player";
-import type Npc from "./classes/npc";
+import Npc from "./classes/npc";
 import InputHandler from "./handlers/input-hander";
 import createCharacterAnims from "./handlers/animation-handler";
 import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
+import type { GameState } from "./types/game-state";
+import { constants } from "@/helpers/constants";
 
-export class Main extends Scene {
+export class Level extends Scene {
   public state: "game" | "ui";
-  private other?: Npc;
+  private id: number;
+  private npc?: Npc;
   private player?: Player;
   private inputHandler?: InputHandler;
 
   constructor() {
     super({ key: "Main" });
     this.state = "game";
+    this.id = 0;
   }
 
   setupGame() {
@@ -30,10 +34,10 @@ export class Main extends Scene {
     createCharacterAnims(this.anims);
   }
 
-  initPlayer(id: string, send: SendJsonMessage) {
+  initPlayer(id: number, send: SendJsonMessage) {
+    this.id = id;
     if (!this.player && this.inputHandler) {
       this.player = new Player(
-        id,
         this.physics,
         new Math.Vector2(0, 0),
         "player",
@@ -44,8 +48,32 @@ export class Main extends Scene {
     }
   }
 
+  removePlayer() {
+    this.player?.body.destroy();
+    this.player = undefined;
+  }
+
+  initNpc() {
+    if (!this.npc) {
+      this.npc = new Npc(this.physics, new Math.Vector2(0, 0), "player");
+    }
+  }
+
+  removeNpc() {
+    this.npc?.body.destroy();
+    this.npc = undefined;
+  }
+
   create() {
     this.setupGame();
+  }
+
+  updateState(state: GameState) {
+    const npcState =
+      this.id === constants.playerTwo ? state.playerOne : state.playerTwo;
+    if (npcState) {
+      this.npc?.update(npcState);
+    }
   }
 
   update(_time: number, _delta: number) {

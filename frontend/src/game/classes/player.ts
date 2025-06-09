@@ -6,12 +6,10 @@ import { MessageType, PlayerMessageSchema } from "../types/messages";
 import { Math as PhaserMath } from "phaser";
 
 export default class Player extends Character {
-  private id: string;
   private inputHandler: InputHandler;
   private send: SendJsonMessage;
 
   constructor(
-    id: string,
     physics: Phaser.Physics.Arcade.ArcadePhysics,
     position: Phaser.Math.Vector2,
     textureKey: string,
@@ -19,7 +17,6 @@ export default class Player extends Character {
     send: SendJsonMessage,
   ) {
     super(physics, position, textureKey);
-    this.id = id;
     this.inputHandler = inputHandler;
     this.send = send;
   }
@@ -66,7 +63,6 @@ export default class Player extends Character {
   sendMessage() {
     const data = {
       message_id: MessageType.player,
-      player_id: this.id,
       position: this.getPos(),
       animation: this.animation,
     };
