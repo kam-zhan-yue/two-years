@@ -15,13 +15,11 @@ export class Level extends Scene {
   private npc?: Npc;
   private player?: Player;
   private inputHandler?: InputHandler;
-  private gameState: GameState;
 
-  constructor(gameState: GameState) {
+  constructor() {
     super({ key: "Main" });
     this.state = "game";
     this.id = 0;
-    this.gameState = gameState;
   }
 
   setupGame() {
@@ -55,13 +53,6 @@ export class Level extends Scene {
   removePlayer() {
     this.player?.destroy();
     this.player = undefined;
-  }
-
-  initNpc() {
-    if (!this.npc) {
-      console.log("Creating a new NPC");
-      this.npc = new Npc(this.physics, new Math.Vector2(0, 0), "player");
-    }
   }
 
   removeNpc() {

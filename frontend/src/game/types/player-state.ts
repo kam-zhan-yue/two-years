@@ -1,10 +1,10 @@
 import { z } from "zod";
-import type { TopDownAnimation } from "../classes/animation";
+import type { CharacterAnimation } from "../classes/animation";
 import { Math } from "phaser";
 
 export interface PlayerState {
   position: Math.Vector2;
-  animation: TopDownAnimation;
+  animation: CharacterAnimation;
 }
 
 export const RawPlayerSchema = z.object({
@@ -12,6 +12,7 @@ export const RawPlayerSchema = z.object({
     x: z.number(),
     y: z.number(),
   }),
+  animation: z.string(),
 });
 
 export const PlayerSchema = RawPlayerSchema.transform((raw) => {
@@ -20,5 +21,6 @@ export const PlayerSchema = RawPlayerSchema.transform((raw) => {
   }
   return {
     position: new Math.Vector3(raw.position.x, raw.position.y),
+    animation: raw.animation,
   };
 });

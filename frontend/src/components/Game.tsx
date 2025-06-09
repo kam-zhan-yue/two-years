@@ -35,13 +35,13 @@ const Game = () => {
     // console.log(socketUrl, lastJsonMessage);
     const json = lastJsonMessage as any;
     if (json) {
-      // console.log(`Setting Game State to ${JSON.stringify(json, null, 2)}`);
       const parsed = GameStateSchema.safeParse(json);
       if (!parsed.success) {
         console.error("Invalid game state:", parsed.error);
         return;
       }
       const gameState = parsed.data as GameState;
+
       setGameState(gameState);
     }
   }, [setGameState, lastJsonMessage, socketUrl]);

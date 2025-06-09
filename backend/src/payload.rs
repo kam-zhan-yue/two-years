@@ -6,6 +6,7 @@ use crate::types::Vector2;
 pub struct Payload {
     pub id: MessageType,
     pub position: Option<Vector2>,
+    pub animation: Option<String>,
 }
 
 #[derive(Deserialize, Clone, Debug)]

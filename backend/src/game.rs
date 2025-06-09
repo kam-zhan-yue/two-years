@@ -21,7 +21,6 @@ impl GameState {
     pub fn server_update(&mut self) {
         self.tick += 1;
         if let Ok(game_state) = serde_json::to_string(&self.game) {
-            println!("Sending {}", game_state);
             self.tx.send(game_state).unwrap();
         }
     }
@@ -32,6 +31,7 @@ impl GameState {
     }
 
     pub fn connect(&mut self, id: u64) {
+        println!("Player {} has connected!", id);
         match id {
             PLAYER_ONE => self.game.player_one = Some(Player::default()),
             PLAYER_TWO => self.game.player_two = Some(Player::default()),
@@ -40,6 +40,7 @@ impl GameState {
     }
 
     pub fn disconnect(&mut self, id: u64) {
+        println!("Player {} has disconnected!", id);
         match id {
             PLAYER_ONE => self.game.player_one = None,
             PLAYER_TWO => self.game.player_two = None,
@@ -70,6 +71,9 @@ impl Game {
                 if let Some(player) = self.get_player(id) {
                     if let Some(position) = payload.position {
                         player.position = position;
+                    }
+                    if let Some(animation) = payload.animation {
+                        player.animation = animation;
                     }
                 }
             }
