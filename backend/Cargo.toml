@@ -7,3 +7,4 @@ edition = "2021"
 axum = { version = "0.8.4", features = ["ws"] }
 tokio = { version = "1.42.1", features = ["full"] }
 serde = { version = "1.0.219", features = ["derive"] }
+futures-util = "0.3"
