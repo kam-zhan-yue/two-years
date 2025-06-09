@@ -7,11 +7,8 @@ import useWebSocket from "react-use-websocket";
 const Game = () => {
   const [socketUrl, setSocketUrl] = useState(ECHO_URL);
   const setGameState = useGameStore((state) => state.setGameState);
-  const gameState = useGameStore((state) => state.gameState);
   const playerId = useGameStore((state) => state.playerId);
   const game = useGameStore((state) => state.game);
-  const getOtherPlayer = useGameStore((state) => state.getOtherPlayer);
-  const otherPlayer = getOtherPlayer();
   const { sendJsonMessage, lastJsonMessage } = useWebSocket(
     socketUrl,
     {},
@@ -35,32 +32,19 @@ const Game = () => {
 
     if (!lastJsonMessage) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    console.log(socketUrl, lastJsonMessage);
+    // console.log(socketUrl, lastJsonMessage);
     const json = lastJsonMessage as any;
     if (json) {
+      // console.log(`Setting Game State to ${JSON.stringify(json, null, 2)}`);
       const parsed = GameStateSchema.safeParse(json);
       if (!parsed.success) {
         console.error("Invalid game state:", parsed.error);
         return;
       }
-      console.log("Parsed", parsed.data);
       const gameState = parsed.data as GameState;
       setGameState(gameState);
     }
   }, [setGameState, lastJsonMessage, socketUrl]);
-
-  useEffect(() => {
-    game?.updateState(gameState);
-  }, [game, gameState]);
-
-  // For handling the other player
-  useEffect(() => {
-    if (otherPlayer) {
-      game?.initNpc();
-    } else {
-      game?.removeNpc();
-    }
-  }, [otherPlayer, game, playerId]);
 
   return <div id="game-container" />;
 };

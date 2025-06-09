@@ -104,12 +104,8 @@ async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64)
 async fn write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<String>) {
     // Send over all game loop broadcasts
     while let Ok(msg) = rx.recv().await {
-        let json = json!({
-            "message": msg,
-        });
-        let json_string = serde_json::to_string(&json).unwrap();
         // In any websocket error, break loop
-        if sender.send(Message::text(json_string)).await.is_err() {
+        if sender.send(Message::text(msg)).await.is_err() {
             break;
         }
     }

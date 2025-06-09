@@ -5,7 +5,7 @@ export enum MessageType {
 }
 
 export const PlayerMessageSchema = z.object({
-  message_id: z.literal(MessageType.player),
+  id: z.literal(MessageType.player),
   position: z.object({
     x: z.number(),
     y: z.number(),

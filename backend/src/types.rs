@@ -13,14 +13,25 @@ impl Default for Vector2 {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "lowercase")]
+pub enum Animation {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Player {
     pub position: Vector2,
+    pub animation: Animation,
 }
 
 impl Default for Player {
     fn default() -> Self {
         Self {
             position: Vector2::default(),
+            animation: Animation::Down,
         }
     }
 }

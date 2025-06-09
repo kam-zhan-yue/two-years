@@ -62,7 +62,7 @@ export default class Player extends Character {
 
   sendMessage() {
     const data = {
-      message_id: MessageType.player,
+      id: MessageType.player,
       position: this.getPos(),
       animation: this.animation,
     };

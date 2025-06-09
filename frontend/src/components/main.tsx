@@ -8,10 +8,11 @@ import Game from "./game";
 
 const Main = () => {
   const setGame = useGameStore((state) => state.setGame);
+  const gameState = useGameStore((state) => state.gameState);
 
   useEffect(() => {
     const boot = new Boot();
-    const level = new Level();
+    const level = new Level(gameState);
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: 300,

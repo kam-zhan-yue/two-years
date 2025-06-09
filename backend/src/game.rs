@@ -21,6 +21,7 @@ impl GameState {
     pub fn server_update(&mut self) {
         self.tick += 1;
         if let Ok(game_state) = serde_json::to_string(&self.game) {
+            println!("Sending {}", game_state);
             self.tx.send(game_state).unwrap();
         }
     }
