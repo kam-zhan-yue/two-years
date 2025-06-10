@@ -84,17 +84,13 @@ async fn game_loop(
 }
 
 async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64) {
-    println!("Connected {}", id);
     let (sender, receiver) = socket.split();
 
     // Subscribe to the game loop broadcast
     let game_clone = game.clone();
-    println!("Trying to read");
     {
         let mut game_thread = game_clone.lock().await;
-        println!("Yielded");
         let rx = game_thread.tx.subscribe();
-        println!("Player {} Joined", id);
         game_thread.connect(id);
         tokio::spawn(write(sender, rx));
         tokio::spawn(read(receiver, game, id));
