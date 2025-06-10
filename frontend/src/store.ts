@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { Math } from "phaser";
-import type { TopDownAnimation } from "./game/classes/animation";
+import type { CharacterAnimation } from "./game/classes/animation";
 import { defaultGameState, type GameState } from "./game/types/game-state";
 import type { Level } from "./game/level";
 
 interface PlayerState {
   position: Math.Vector2;
-  animation: TopDownAnimation;
+  animation: CharacterAnimation;
 }
 
 interface GameStore {

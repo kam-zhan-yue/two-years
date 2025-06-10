@@ -14,15 +14,7 @@ impl Default for Vector2 {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Player {
+    pub id: u64,
     pub position: Vector2,
     pub animation: String,
-}
-
-impl Default for Player {
-    fn default() -> Self {
-        Self {
-            position: Vector2::default(),
-            animation: String::from("player-idle-down"),
-        }
-    }
 }

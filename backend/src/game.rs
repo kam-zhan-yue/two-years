@@ -3,7 +3,7 @@ use tokio::sync::broadcast;
 
 use crate::{
     payload::{MessageType, Payload},
-    types::Player,
+    types::{Player, Vector2},
 };
 
 pub const TICKS_PER_SECOND: f64 = 120_f64;
@@ -32,9 +32,14 @@ impl GameState {
 
     pub fn connect(&mut self, id: u64) {
         println!("Player {} has connected!", id);
+        let player = Player {
+            id: id,
+            position: Vector2::default(),
+            animation: String::from("player-idle-down"),
+        };
         match id {
-            PLAYER_ONE => self.game.player_one = Some(Player::default()),
-            PLAYER_TWO => self.game.player_two = Some(Player::default()),
+            PLAYER_ONE => self.game.player_one = Some(player),
+            PLAYER_TWO => self.game.player_two = Some(player),
             _ => {}
         }
     }
