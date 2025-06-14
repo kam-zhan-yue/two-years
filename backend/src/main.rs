@@ -9,6 +9,7 @@ use axum::{
         ws::{Message, WebSocket, WebSocketUpgrade},
         Path, State,
     },
+    http::Method,
     response::Response,
     routing::{any, get},
     Router,
@@ -23,11 +24,17 @@ use tokio::{
     sync::broadcast::{self, Receiver},
     time::interval,
 };
+use tower::ServiceBuilder;
+use tower_http::cors::CorsLayer;
 
 use crate::game::{Game, GameState};
 
 #[tokio::main]
 async fn main() {
+    let cors_layer = CorsLayer::new()
+        .allow_origin(["https://two-years-g1l1.onrender.com".parse().unwrap()])
+        .allow_methods([Method::GET, Method::POST]);
+
     let game_router: Router<Arc<Mutex<GameState>>> =
         Router::new().route("/game/{id}", any(game_loop));
 
@@ -48,11 +55,10 @@ async fn main() {
     let router = Router::new()
         .merge(api_router)
         .merge(game_router)
-        .with_state(game_state);
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
-        .await
-        .unwrap();
-    println!("Listening on http://127.0.0.1:8000");
+        .with_state(game_state)
+        .layer(ServiceBuilder::new().layer(cors_layer));
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
+    println!("Listening on http://0.0.0.0:8000");
 
     tokio::spawn(async move {
         println!("Starting game loop!");
