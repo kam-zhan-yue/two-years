@@ -4,7 +4,7 @@ import { constants } from "@/helpers/constants";
 import { useGameStore } from "@/store";
 import Phaser from "phaser";
 import { useEffect } from "react";
-import Game from "./game";
+import { Game } from "./game";
 
 const Main = () => {
   const setGame = useGameStore((state) => state.setGame);

@@ -49,4 +49,4 @@ const Game = () => {
   return <div id="game-container" />;
 };
 
-export default Game;
+export { Game }
