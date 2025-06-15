@@ -35,12 +35,11 @@ async fn main() {
         .allow_origin(["https://two-years-g1l1.onrender.com".parse().unwrap()])
         .allow_methods([Method::GET, Method::POST]);
 
-    let game_router: Router<Arc<Mutex<GameState>>> =
-        Router::new().route("/game/{id}", any(game_loop));
+    let game_router: Router<Arc<Mutex<GameState>>> = Router::new()
+        .route("/game/{id}", any(game_loop))
+        .route("/dialogue/{id}", any(dialogue_loop));
 
-    let api_router = Router::new()
-        .route("/", get(root))
-        .route("/ws", any(game_handler));
+    let api_router = Router::new().route("/", get(root));
 
     let (tx, _rx) = broadcast::channel(100);
 
@@ -135,14 +134,17 @@ async fn read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<GameState>>,
     }
 }
 
-async fn game_handler(ws: WebSocketUpgrade) -> Response {
-    ws.on_upgrade(handle_socket)
+async fn dialogue_loop(
+    ws: WebSocketUpgrade,
+    State(game): State<Arc<Mutex<GameState>>>,
+    Path(id): Path<u64>,
+) -> Response {
+    ws.on_upgrade(move |socket| dialogue_websocket(socket, game, id))
 }
 
-async fn handle_socket(mut socket: WebSocket) {
-    let json = json!({
-        "message": "Connected!",
-    });
-    let json_string = serde_json::to_string(&json).unwrap();
-    socket.send(Message::text(json_string)).await.unwrap();
+async fn dialogue_websocket(socket: WebSocket, _game: Arc<Mutex<GameState>>, _id: u64) {
+    let (mut sender, _) = socket.split();
+    if let Ok(message) = serde_json::to_string("a message") {
+        sender.send(Message::text(message)).await.unwrap();
+    }
 }

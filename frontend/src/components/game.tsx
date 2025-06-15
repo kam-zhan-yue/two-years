@@ -1,39 +1,44 @@
-import { ECHO_URL, WS_URL } from "@/api/constants";
+import { DIALOGUE_URL, ECHO_URL, GAME_URL } from "@/api/constants";
 import { GameStateSchema, type GameState } from "@/game/types/game-state";
 import { useGameStore } from "@/store";
 import { useEffect, useState } from "react";
 import useWebSocket from "react-use-websocket";
 
 const Game = () => {
-  const [socketUrl, setSocketUrl] = useState(ECHO_URL);
+  const [gameUrl, setGameUrl] = useState(ECHO_URL);
+  const [dialogueUrl, setDialogueUrl] = useState(ECHO_URL);
   const setGameState = useGameStore((state) => state.setGameState);
   const playerId = useGameStore((state) => state.playerId);
   const game = useGameStore((state) => state.game);
-  const { sendJsonMessage, lastJsonMessage } = useWebSocket(
-    socketUrl,
+  const { sendJsonMessage, lastJsonMessage: gameMessage } = useWebSocket(
+    gameUrl,
     {},
     true,
   );
 
+  const { sendJsonMessage: dialogueSend, lastJsonMessage: dialogueMessage } =
+    useWebSocket(dialogueUrl, {}, true);
+
   // Handle the main player
   useEffect(() => {
     if (game && playerId !== 0) {
-      setSocketUrl(WS_URL + "/" + playerId);
+      setGameUrl(GAME_URL + "/" + playerId);
+      setDialogueUrl(DIALOGUE_URL + "/" + playerId);
       game.initPlayer(playerId, sendJsonMessage);
     }
-  }, [playerId, game, sendJsonMessage]);
+  }, [playerId, setGameUrl, setDialogueUrl, game, sendJsonMessage]);
 
   // Handle the game loop
   useEffect(() => {
     // Ignore messages from the echo site, as it is for setup only
-    if (socketUrl === "wss://echo.websocket.org") {
+    if (gameUrl === ECHO_URL) {
       return;
     }
 
-    if (!lastJsonMessage) return;
+    if (!gameMessage) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // console.log(socketUrl, lastJsonMessage);
-    const json = lastJsonMessage as any;
+    const json = gameMessage as any;
     if (json) {
       const parsed = GameStateSchema.safeParse(json);
       if (!parsed.success) {
@@ -44,9 +49,25 @@ const Game = () => {
 
       setGameState(gameState);
     }
-  }, [setGameState, lastJsonMessage, socketUrl]);
+  }, [setGameState, gameMessage, gameUrl]);
+
+  // Handle the dialogue loop
+  useEffect(() => {
+    // Ignore messages from the echo site, as it is for setup only
+    if (dialogueUrl === ECHO_URL) {
+      return;
+    }
+
+    if (!dialogueMessage) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const json = dialogueMessage as any;
+    if (json) {
+      console.log(`Dialogue Message is ${JSON.stringify(json, null, 2)}`);
+    }
+  }, [dialogueMessage, dialogueUrl]);
 
   return <div id="game-container" />;
 };
 
-export { Game }
+export { Game };
