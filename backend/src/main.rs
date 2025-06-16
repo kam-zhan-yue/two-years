@@ -2,7 +2,11 @@ mod game;
 mod payload;
 mod types;
 
-use std::{sync::Arc, time::Duration};
+use std::{
+    fs::{self},
+    sync::Arc,
+    time::Duration,
+};
 
 use axum::{
     extract::{
@@ -14,12 +18,12 @@ use axum::{
     routing::{any, get},
     Router,
 };
+use bladeink::story::Story;
 use futures_util::{
     lock::Mutex,
     stream::{SplitSink, SplitStream, StreamExt},
     SinkExt,
 };
-use serde_json::json;
 use tokio::{
     sync::broadcast::{self, Receiver},
     time::interval,
@@ -31,6 +35,15 @@ use crate::game::{Game, GameState};
 
 #[tokio::main]
 async fn main() {
+    let contents =
+        fs::read_to_string("ink/game.ink.json").expect("Should have been able to read the file");
+    let mut story = Story::new(&contents).unwrap();
+    while story.can_continue() {
+        let line = story.cont().unwrap();
+
+        println!("{}", line);
+    }
+
     let cors_layer = CorsLayer::new()
         .allow_origin(["https://two-years-g1l1.onrender.com".parse().unwrap()])
         .allow_methods([Method::GET, Method::POST]);
