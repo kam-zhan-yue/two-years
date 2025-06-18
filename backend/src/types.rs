@@ -11,10 +11,3 @@ impl Default for Vector2 {
         Self { x: 0_f64, y: 0_f64 }
     }
 }
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Player {
-    pub id: u64,
-    pub position: Vector2,
-    pub animation: String,
-}

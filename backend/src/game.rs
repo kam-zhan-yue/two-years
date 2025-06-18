@@ -3,16 +3,17 @@ use tokio::sync::broadcast;
 
 use crate::{
     payload::{MessageType, Payload},
-    types::{Player, Vector2},
+    player::{Player, PlayerState, PLAYER_ONE, PLAYER_TWO},
+    story::StoryState,
+    types::Vector2,
 };
 
 pub const TICKS_PER_SECOND: f64 = 120_f64;
-pub const PLAYER_ONE: u64 = 1;
-pub const PLAYER_TWO: u64 = 2;
 
 #[derive(Debug, Clone)]
 pub struct GameState {
     pub game: Game,
+    pub story: StoryState,
     pub tick: i64,
     pub tx: broadcast::Sender<String>,
 }
@@ -32,8 +33,8 @@ impl GameState {
 
     pub fn connect(&mut self, id: u64) {
         println!("Player {} has connected!", id);
-        let player = Player {
-            id: id,
+        let player = PlayerState {
+            id: Player::from_id(id),
             position: Vector2::default(),
             animation: String::from("player-idle-down"),
         };
@@ -56,8 +57,8 @@ impl GameState {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct Game {
-    player_one: Option<Player>,
-    player_two: Option<Player>,
+    player_one: Option<PlayerState>,
+    player_two: Option<PlayerState>,
 }
 
 impl Default for Game {
@@ -85,7 +86,7 @@ impl Game {
         }
     }
 
-    fn get_player(&mut self, id: u64) -> Option<&mut Player> {
+    fn get_player(&mut self, id: u64) -> Option<&mut PlayerState> {
         if id == PLAYER_ONE {
             self.player_one.as_mut()
         } else if id == PLAYER_TWO {

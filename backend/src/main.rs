@@ -1,5 +1,7 @@
 mod game;
 mod payload;
+mod player;
+mod story;
 mod types;
 
 use std::{
@@ -31,7 +33,10 @@ use tokio::{
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 
-use crate::game::{Game, GameState};
+use crate::{
+    game::{Game, GameState},
+    story::{StoryInput, StoryState},
+};
 
 #[tokio::main]
 async fn main() {
@@ -58,6 +63,11 @@ async fn main() {
 
     let game_state = Arc::new(Mutex::new(GameState {
         game: Game::default(),
+        story: StoryState {
+            json: String::from(contents),
+            instructions: Vec::new(),
+            input: StoryInput::None,
+        },
         tick: 0,
         tx: tx,
     }));

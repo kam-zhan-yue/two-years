@@ -1,10 +1,12 @@
-Once upon a time...
+NODE__START
+P1: This is the start of a node. Nice to meet you
+P2: Hello! Nice to meet you
+NODE__END
 
-P1: Helloooo
-P2: Nooooo
-P1: Is there something I can do for you?
-* P2: Actually, there is
-* P2: Not really
+QUESTION__START #P2
+P1: What should we do today?
++ Go to the beach
++ Go to the restaurant
++ Go to the arcade
 
-- They lived happily ever after.
     -> END
