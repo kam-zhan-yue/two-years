@@ -1,9 +1,7 @@
 mod tests {
     use crate::{
         player::Player,
-        story::{
-            process_file, DialogueLine, Response, StoryChoice, StoryInput, StoryNode, StoryState,
-        },
+        story::{process_file, DialogueLine, StoryChoice, StoryInput, StoryNode, StoryState},
     };
     use std::fs;
 
@@ -52,22 +50,31 @@ mod tests {
                     speaker: Player::One,
                     line: String::from("What should we do today?")
                 },
-                response: Response {
-                    answerer: Player::Two,
-                    choices: vec![
-                        StoryChoice {
-                            index: 0,
-                            text: String::from("Go to the beach")
-                        },
-                        StoryChoice {
-                            index: 1,
-                            text: String::from("Go to the restaurant")
-                        },
-                        StoryChoice {
-                            index: 2,
-                            text: String::from("Go to the arcade")
-                        }
-                    ]
+                answerer: Player::Two,
+                choices: vec![
+                    StoryChoice {
+                        index: 0,
+                        text: String::from("Go to the beach")
+                    },
+                    StoryChoice {
+                        index: 1,
+                        text: String::from("Go to the restaurant")
+                    },
+                    StoryChoice {
+                        index: 2,
+                        text: String::from("Go to the arcade")
+                    }
+                ]
+            }
+        );
+
+        let response = story.choose(0);
+        assert_eq!(
+            response,
+            StoryNode::Response {
+                line: DialogueLine {
+                    speaker: Player::Two,
+                    line: String::from("Go to the beach")
                 }
             }
         );
@@ -125,20 +132,32 @@ mod tests {
                     speaker: Player::Two,
                     line: String::from("Shall we go down to the cafe at the end of the road?")
                 },
-                response: Response {
-                    answerer: Player::One,
-                    choices: vec![
-                        StoryChoice {
-                            index: 0,
-                            text: String::from("Why that is a mighty fine idea.")
-                        },
-                        StoryChoice {
-                            index: 1,
-                            text: String::from("How dreadful.")
-                        },
-                    ]
+                answerer: Player::One,
+                choices: vec![
+                    StoryChoice {
+                        index: 0,
+                        text: String::from("Why that is a mighty fine idea.")
+                    },
+                    StoryChoice {
+                        index: 1,
+                        text: String::from("How dreadful.")
+                    },
+                ],
+            }
+        );
+
+        let response = story.choose(0);
+        assert_eq!(
+            response,
+            StoryNode::Response {
+                line: DialogueLine {
+                    speaker: Player::One,
+                    line: String::from("Why that is a mighty fine idea.")
                 }
             }
         );
+
+        let node = story.get_node();
+        assert_eq!(node, StoryNode::End);
     }
 }

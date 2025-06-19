@@ -1,5 +1,6 @@
 use std::{default, f32::consts::PI, fs};
 
+use axum::http::Response;
 use bladeink::story::Story;
 use serde::{Deserialize, Serialize};
 
@@ -31,22 +32,20 @@ pub enum StoryInstruction {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-#[serde(tag = "type", content = "body")]
+#[serde(tag = "type", content = "body", rename_all = "lowercase")]
 pub enum StoryNode {
     Dialogue {
         lines: Vec<DialogueLine>,
     },
     Question {
         question: DialogueLine,
-        response: Response,
+        answerer: Player,
+        choices: Vec<StoryChoice>,
+    },
+    Response {
+        line: DialogueLine,
     },
     End,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct Response {
-    pub answerer: Player,
-    pub choices: Vec<StoryChoice>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -61,19 +60,27 @@ pub struct DialogueLine {
     pub line: String,
 }
 
+struct StoryHistory {
+    story: Story,
+    nodes: Vec<StoryNode>,
+}
+
 impl StoryState {
-    pub fn get_node(&mut self) -> StoryNode {
+    fn get_history(&mut self) -> StoryHistory {
         // Have to rehydrate the story each time
         let mut story = Story::new(&self.json).unwrap();
 
-        for node in self.instructions.iter() {
-            progress_story(&mut story, node);
+        let mut nodes: Vec<StoryNode> = Vec::new();
+        for instruction in self.instructions.clone().iter() {
+            let node = self.progress_story(&mut story, &nodes, instruction);
+            nodes.push(node);
         }
-        let next_node = self.get_next_node(&mut story);
+        StoryHistory { story, nodes }
+    }
 
-        // Store the instruction as in the node if it is
-
-        next_node
+    pub fn get_node(&mut self) -> StoryNode {
+        let mut history = self.get_history();
+        return self.get_next_node(&mut history.story);
     }
 
     fn get_next_node(&mut self, story: &mut Story) -> StoryNode {
@@ -84,12 +91,114 @@ impl StoryState {
 
         if line == NODE_START {
             self.instructions.push(StoryInstruction::Dialogue);
-            process_dialogue(story)
+            self.process_dialogue(story)
         } else if line == QUESTION_START {
             self.instructions.push(StoryInstruction::Question);
-            process_question(story)
+            self.process_question(story)
         } else {
             panic!("Story is unprocessable at {:?}", line);
+        }
+    }
+
+    pub fn choose(&mut self, index: i32) -> StoryNode {
+        let mut history = self.get_history();
+        self.instructions.push(StoryInstruction::Choice(index));
+        return self.process_choice(&mut history.story, &history.nodes, index);
+    }
+
+    /// Takes a node instruction and progresses the story, returning the last node
+    fn progress_story(
+        &mut self,
+        story: &mut Story,
+        nodes: &Vec<StoryNode>,
+        instruction: &StoryInstruction,
+    ) -> StoryNode {
+        // If we are progressing a node, loop from the start to the end
+        match *instruction {
+            StoryInstruction::Dialogue => {
+                let line = get_next_line(story);
+                assert_eq!(line, NODE_START);
+                self.process_dialogue(story)
+            }
+            StoryInstruction::Question => {
+                let line = get_next_line(story);
+                assert_eq!(line, QUESTION_START);
+                self.process_question(story)
+            }
+            StoryInstruction::Choice(choice) => {
+                let choices = story.get_current_choices();
+                assert!(!choices.is_empty());
+                self.process_choice(story, nodes, choice)
+            }
+        }
+    }
+
+    fn process_dialogue(&mut self, story: &mut Story) -> StoryNode {
+        let mut lines: Vec<DialogueLine> = Vec::new();
+        while story.can_continue() {
+            let line = get_next_line(story);
+            if line == NODE_END {
+                break;
+            } else {
+                let dialogue_line = process_line(&line);
+                lines.push(dialogue_line);
+            }
+        }
+        StoryNode::Dialogue { lines: lines }
+    }
+
+    fn process_question(&mut self, story: &mut Story) -> StoryNode {
+        // Get the tag from the current question to get the answerer
+        // Need to get the tag before we get the next line
+        let Ok(tags) = story.get_current_tags() else {
+            panic!("Failed at get_current_tags");
+        };
+        let question_line = get_next_line(story);
+        let question = process_line(&question_line);
+
+        let answerer = Player::from_str(tags[0].as_str());
+
+        // Populate the choices
+        let choices = story.get_current_choices();
+        if choices.is_empty() {
+            panic!("There are 0 choices at {:?}", question_line);
+        }
+
+        let story_choices: Vec<StoryChoice> = choices
+            .iter()
+            .map(|choice_rc| {
+                let choice = choice_rc.as_ref();
+                StoryChoice {
+                    index: *choice.index.borrow() as i32,
+                    text: choice.text.clone(),
+                }
+            })
+            .collect();
+
+        StoryNode::Question {
+            question: question,
+            answerer: answerer,
+            choices: story_choices,
+        }
+    }
+
+    fn process_choice(
+        &mut self,
+        story: &mut Story,
+        nodes: &Vec<StoryNode>,
+        index: i32,
+    ) -> StoryNode {
+        if let Some(StoryNode::Question { answerer, .. }) = nodes.last() {
+            story.choose_choice_index(index as usize).unwrap();
+            let line = get_next_line(story);
+            StoryNode::Response {
+                line: DialogueLine {
+                    speaker: *answerer,
+                    line,
+                },
+            }
+        } else {
+            panic!("The last node is not a question! {:?}", nodes.last());
         }
     }
 }
@@ -111,40 +220,6 @@ fn get_next_line(story: &mut Story) -> String {
     }
 }
 
-fn progress_story(story: &mut Story, node: &StoryInstruction) {
-    // If we are progressing a node, loop from the start to the end
-    match *node {
-        StoryInstruction::Dialogue => {
-            let line = get_next_line(story);
-            assert_eq!(line, NODE_START);
-            process_dialogue(story);
-        }
-        StoryInstruction::Question => {
-            let line = get_next_line(story);
-            assert_eq!(line, QUESTION_START);
-            process_question(story);
-        }
-        StoryInstruction::Choice(choice) => {
-            let line = get_next_line(story);
-            assert_eq!(line, QUESTION_START);
-        }
-    }
-}
-
-fn process_dialogue(story: &mut Story) -> StoryNode {
-    let mut lines: Vec<DialogueLine> = Vec::new();
-    while story.can_continue() {
-        let line = get_next_line(story);
-        if line == NODE_END {
-            break;
-        } else {
-            let dialogue_line = process_line(&line);
-            lines.push(dialogue_line);
-        }
-    }
-    StoryNode::Dialogue { lines: lines }
-}
-
 fn process_line(line: &str) -> DialogueLine {
     let mut split = line.splitn(2, ':');
     let speaker_str = split.next().unwrap_or("").trim();
@@ -156,44 +231,3 @@ fn process_line(line: &str) -> DialogueLine {
         line: line_str.to_owned(),
     }
 }
-
-fn process_question(story: &mut Story) -> StoryNode {
-    // Get the tag from the current question to get the answerer
-    // Need to get the tag before we get the next line
-    let Ok(tags) = story.get_current_tags() else {
-        panic!("Failed at get_current_tags");
-    };
-    let question_line = get_next_line(story);
-    let question = process_line(&question_line);
-
-    let answerer = Player::from_str(tags[0].as_str());
-
-    // Populate the choices
-    let choices = story.get_current_choices();
-    if choices.is_empty() {
-        panic!("There are 0 choices at {:?}", question_line);
-    }
-
-    let story_choices: Vec<StoryChoice> = choices
-        .iter()
-        .map(|choice_rc| {
-            let choice = choice_rc.as_ref();
-            StoryChoice {
-                index: *choice.index.borrow() as i32,
-                text: choice.text.clone(),
-            }
-        })
-        .collect();
-
-    StoryNode::Question {
-        question: question,
-        response: Response {
-            answerer: answerer,
-            choices: story_choices,
-        },
-    }
-}
-
-// fn process_chioce(&mut story) -> StoryNode {
-
-// }

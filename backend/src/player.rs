@@ -5,7 +5,7 @@ use crate::types::Vector2;
 pub const PLAYER_ONE: u64 = 1;
 pub const PLAYER_TWO: u64 = 2;
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Player {
     #[serde(rename = "P1")]
