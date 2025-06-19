@@ -2,6 +2,7 @@ mod game;
 mod payload;
 mod player;
 mod story;
+mod tests;
 mod types;
 
 use std::{
@@ -20,7 +21,6 @@ use axum::{
     routing::{any, get},
     Router,
 };
-use bladeink::story::Story;
 use futures_util::{
     lock::Mutex,
     stream::{SplitSink, SplitStream, StreamExt},
@@ -42,12 +42,6 @@ use crate::{
 async fn main() {
     let contents =
         fs::read_to_string("ink/game.ink.json").expect("Should have been able to read the file");
-    let mut story = Story::new(&contents).unwrap();
-    while story.can_continue() {
-        let line = story.cont().unwrap();
-
-        println!("{}", line);
-    }
 
     let cors_layer = CorsLayer::new()
         .allow_origin(["https://two-years-g1l1.onrender.com".parse().unwrap()])
