@@ -158,6 +158,17 @@ mod tests {
         );
 
         let node = story.get_node();
+        assert_eq!(
+            node,
+            StoryNode::Dialogue {
+                lines: vec![DialogueLine {
+                    speaker: Player::One,
+                    line: String::from("Why this is a fine evening")
+                },]
+            }
+        );
+
+        let node = story.get_node();
         assert_eq!(node, StoryNode::End);
     }
 }
