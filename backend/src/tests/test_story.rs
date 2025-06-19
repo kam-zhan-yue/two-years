@@ -9,8 +9,8 @@ mod tests {
 
     #[test]
     fn test_dialogue_node() {
-        let story = StoryState {
-            json: process_file("ink/test_dialogue_node.ink.json"),
+        let mut story = StoryState {
+            json: process_file("src/tests/fixtures/test_dialogue_node.ink.json"),
             instructions: Vec::new(),
             input: StoryInput::None,
         };
@@ -31,12 +31,15 @@ mod tests {
                 ]
             }
         );
+
+        let node = story.get_node();
+        assert_eq!(node, StoryNode::End);
     }
 
     #[test]
     fn test_question_node() {
-        let story = StoryState {
-            json: process_file("ink/test_question_node.ink.json"),
+        let mut story = StoryState {
+            json: process_file("src/tests/fixtures/test_question_node.ink.json"),
             instructions: Vec::new(),
             input: StoryInput::None,
         };
@@ -64,6 +67,75 @@ mod tests {
                             index: 2,
                             text: String::from("Go to the arcade")
                         }
+                    ]
+                }
+            }
+        );
+
+        let node = story.get_node();
+        assert_eq!(node, StoryNode::End);
+    }
+
+    #[test]
+    fn test_chain() {
+        let mut story = StoryState {
+            json: process_file("src/tests/fixtures/test_chain.ink.json"),
+            instructions: Vec::new(),
+            input: StoryInput::None,
+        };
+
+        let node = story.get_node();
+        assert_eq!(
+            node,
+            StoryNode::Dialogue {
+                lines: vec![
+                    DialogueLine {
+                        speaker: Player::One,
+                        line: String::from("There is no where to be but the present.")
+                    },
+                    DialogueLine {
+                        speaker: Player::Two,
+                        line: String::from("Indeed you are correct.")
+                    }
+                ]
+            }
+        );
+        let node = story.get_node();
+        assert_eq!(
+            node,
+            StoryNode::Dialogue {
+                lines: vec![
+                    DialogueLine {
+                        speaker: Player::One,
+                        line: String::from("I'm quenching for a coffee right now.")
+                    },
+                    DialogueLine {
+                        speaker: Player::Two,
+                        line: String::from("As am I.")
+                    }
+                ]
+            }
+        );
+
+        let node = story.get_node();
+        assert_eq!(
+            node,
+            StoryNode::Question {
+                question: DialogueLine {
+                    speaker: Player::Two,
+                    line: String::from("Shall we go down to the cafe at the end of the road?")
+                },
+                response: Response {
+                    answerer: Player::One,
+                    choices: vec![
+                        StoryChoice {
+                            index: 0,
+                            text: String::from("Why that is a mighty fine idea.")
+                        },
+                        StoryChoice {
+                            index: 1,
+                            text: String::from("How dreadful.")
+                        },
                     ]
                 }
             }
