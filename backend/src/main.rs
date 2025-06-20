@@ -40,6 +40,14 @@ use crate::{
 
 #[tokio::main]
 async fn main() {
+    let router = app();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
+    println!("Listening on http://0.0.0.0:8000");
+
+    axum::serve(listener, router).await.unwrap();
+}
+
+pub fn app() -> Router {
     let contents =
         fs::read_to_string("ink/game.ink.json").expect("Should have been able to read the file");
 
@@ -49,7 +57,8 @@ async fn main() {
 
     let game_router: Router<Arc<Mutex<GameState>>> = Router::new()
         .route("/game/{id}", any(game_loop))
-        .route("/dialogue/{id}", any(dialogue_loop));
+        .route("/dialogue/{id}", any(dialogue_loop))
+        .route("/integration-testable", get(integration_testable_handler));
 
     let api_router = Router::new().route("/", get(root));
 
@@ -67,14 +76,11 @@ async fn main() {
     }));
 
     let game = Arc::clone(&game_state);
-
     let router = Router::new()
         .merge(api_router)
         .merge(game_router)
         .with_state(game_state)
         .layer(ServiceBuilder::new().layer(cors_layer));
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
-    println!("Listening on http://0.0.0.0:8000");
 
     tokio::spawn(async move {
         println!("Starting game loop!");
@@ -89,8 +95,7 @@ async fn main() {
             tick_interval.tick().await;
         }
     });
-
-    axum::serve(listener, router).await.unwrap();
+    return router;
 }
 
 async fn root() -> &'static str {
@@ -106,10 +111,17 @@ async fn game_loop(
 }
 
 async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64) {
+    // First verify that the player is able to join the game
+    let game_clone = game.clone();
+    let mut thread = game_clone.lock().await;
+    match id {
+        1 => {
+            if game_clone.lock
+        }
+    }
     let (sender, receiver) = socket.split();
 
     // Subscribe to the game loop broadcast
-    let game_clone = game.clone();
     {
         let mut game_thread = game_clone.lock().await;
         let rx = game_thread.tx.subscribe();
@@ -163,5 +175,26 @@ async fn dialogue_websocket(socket: WebSocket, _game: Arc<Mutex<GameState>>, _id
     let (mut sender, _) = socket.split();
     if let Ok(message) = serde_json::to_string("a message") {
         sender.send(Message::text(message)).await.unwrap();
+    }
+}
+
+// A WebSocket handler that echos any message it receives.
+//
+// This one we'll be integration testing so it can be written in the regular way.
+async fn integration_testable_handler(ws: WebSocketUpgrade) -> Response {
+    ws.on_upgrade(integration_testable_handle_socket)
+}
+
+async fn integration_testable_handle_socket(mut socket: WebSocket) {
+    while let Some(Ok(msg)) = socket.recv().await {
+        if let Message::Text(msg) = msg {
+            if socket
+                .send(Message::Text(format!("You said: {msg}").into()))
+                .await
+                .is_err()
+            {
+                break;
+            }
+        }
     }
 }

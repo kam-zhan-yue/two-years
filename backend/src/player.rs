@@ -8,6 +8,7 @@ pub const PLAYER_TWO: u64 = 2;
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Player {
+    None,
     #[serde(rename = "P1")]
     One,
     #[serde(rename = "P2")]
@@ -37,4 +38,14 @@ pub struct PlayerState {
     pub id: Player,
     pub position: Vector2,
     pub animation: String,
+}
+
+impl Default for PlayerState {
+    fn default() -> Self {
+        Self {
+            id: Player::None,
+            position: Vector2::default(),
+            animation: String::default(),
+        }
+    }
 }

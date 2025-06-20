@@ -1,9 +1,9 @@
+#[cfg(test)]
 mod tests {
     use crate::{
         player::Player,
         story::{process_file, DialogueLine, StoryChoice, StoryInput, StoryNode, StoryState},
     };
-    use std::fs;
 
     #[test]
     fn test_dialogue_node() {

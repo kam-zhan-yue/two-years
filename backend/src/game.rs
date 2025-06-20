@@ -20,9 +20,10 @@ pub struct GameState {
 
 impl GameState {
     pub fn server_update(&mut self) {
-        self.tick += 1;
+        // self.tick += 1;
         if let Ok(game_state) = serde_json::to_string(&self.game) {
-            self.tx.send(game_state).unwrap();
+            // Don't error out if there are no receivers
+            if let Err(_) = self.tx.send(game_state) {}
         }
     }
 
@@ -39,8 +40,8 @@ impl GameState {
             animation: String::from("player-idle-down"),
         };
         match id {
-            PLAYER_ONE => self.game.player_one = Some(player),
-            PLAYER_TWO => self.game.player_two = Some(player),
+            PLAYER_ONE => self.game.player_one = player,
+            PLAYER_TWO => self.game.player_two = player,
             _ => {}
         }
     }
@@ -48,8 +49,8 @@ impl GameState {
     pub fn disconnect(&mut self, id: u64) {
         println!("Player {} has disconnected!", id);
         match id {
-            PLAYER_ONE => self.game.player_one = None,
-            PLAYER_TWO => self.game.player_two = None,
+            PLAYER_ONE => self.game.player_one = PlayerState::default(),
+            PLAYER_TWO => self.game.player_two = PlayerState::default(),
             _ => {}
         }
     }
@@ -57,15 +58,15 @@ impl GameState {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct Game {
-    player_one: Option<PlayerState>,
-    player_two: Option<PlayerState>,
+    player_one: PlayerState,
+    player_two: PlayerState,
 }
 
 impl Default for Game {
     fn default() -> Self {
         Self {
-            player_one: None,
-            player_two: None,
+            player_one: PlayerState::default(),
+            player_two: PlayerState::default(),
         }
     }
 }
@@ -88,9 +89,9 @@ impl Game {
 
     fn get_player(&mut self, id: u64) -> Option<&mut PlayerState> {
         if id == PLAYER_ONE {
-            self.player_one.as_mut()
+            Some(&mut self.player_one)
         } else if id == PLAYER_TWO {
-            self.player_two.as_mut()
+            Some(&mut self.player_two)
         } else {
             None
         }
