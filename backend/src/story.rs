@@ -78,19 +78,13 @@ impl StoryState {
         }
     }
 
-    pub fn can_continue(self) -> bool {
+    pub fn can_continue(&self) -> bool {
         self.player_one_ready && self.player_two_ready
     }
 
     pub fn reset_players(&mut self) {
         self.player_one_ready = false;
         self.player_two_ready = false;
-    }
-
-    pub fn update_choice(&mut self, payload: Payload) {
-        if let Some(choice) = payload.choice {
-            self.choose(choice);
-        }
     }
 
     fn get_history(&mut self) -> StoryHistory {

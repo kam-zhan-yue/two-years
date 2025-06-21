@@ -4,7 +4,7 @@ use tokio::sync::broadcast;
 use crate::{
     payload::{MessageType, Payload},
     player::{Player, PlayerState, PLAYER_ONE, PLAYER_TWO},
-    story::StoryState,
+    story::{StoryNode, StoryState},
     types::Vector2,
 };
 
@@ -14,7 +14,6 @@ pub const TICKS_PER_SECOND: f64 = 120_f64;
 pub struct GameState {
     pub game: Game,
     pub story: StoryState,
-    pub tick: i64,
     pub tx: broadcast::Sender<String>,
 }
 
@@ -31,8 +30,31 @@ impl GameState {
         let payload: Payload = serde_json::from_str(payload).unwrap();
         match payload.id {
             MessageType::Player => self.game.update_player(id, payload),
-            MessageType::Dialogue => self.story.update_dialogue(id),
-            MessageType::Choice => self.story.update_choice(payload),
+            MessageType::Dialogue => self.update_dialogue(id),
+            MessageType::Choice => self.update_choice(payload),
+        }
+    }
+
+    pub fn update_dialogue(&mut self, id: u64) {
+        let story = &mut self.story;
+        story.update_dialogue(id);
+        if story.can_continue() {
+            let node = self.story.get_node();
+            self.broadcast_story_node(node);
+        }
+    }
+
+    pub fn update_choice(&mut self, payload: Payload) {
+        if let Some(choice) = payload.choice {
+            let node = self.story.choose(choice);
+            self.broadcast_story_node(node);
+        }
+    }
+
+    fn broadcast_story_node(&mut self, node: StoryNode) {
+        self.story.reset_players();
+        if let Ok(node) = serde_json::to_string(&node) {
+            if let Err(_) = self.tx.send(node) {}
         }
     }
 
@@ -48,9 +70,10 @@ impl GameState {
             PLAYER_TWO => self.game.player_two = player,
             _ => {}
         }
-    }
 
-    pub fn check_dialogue(&mut self, id: u64) {}
+        // When the player first connects, signal that the game is ready
+        self.update_dialogue(id);
+    }
 
     pub fn disconnect(&mut self, id: u64) {
         println!("Player {} has disconnected!", id);
