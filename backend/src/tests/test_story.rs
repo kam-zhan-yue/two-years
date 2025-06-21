@@ -2,7 +2,7 @@
 mod tests {
     use crate::{
         player::Player,
-        story::{process_file, DialogueLine, StoryChoice, StoryInput, StoryNode, StoryState},
+        story::{process_file, DialogueLine, StoryChoice, StoryNode, StoryState},
     };
 
     #[test]
@@ -10,7 +10,8 @@ mod tests {
         let mut story = StoryState {
             json: process_file("src/tests/fixtures/test_dialogue_node.ink.json"),
             instructions: Vec::new(),
-            input: StoryInput::None,
+            player_one_ready: false,
+            player_two_ready: false,
         };
 
         let node = story.get_node();
@@ -39,7 +40,8 @@ mod tests {
         let mut story = StoryState {
             json: process_file("src/tests/fixtures/test_question_node.ink.json"),
             instructions: Vec::new(),
-            input: StoryInput::None,
+            player_one_ready: false,
+            player_two_ready: false,
         };
 
         let node = story.get_node();
@@ -88,7 +90,8 @@ mod tests {
         let mut story = StoryState {
             json: process_file("src/tests/fixtures/test_chain.ink.json"),
             instructions: Vec::new(),
-            input: StoryInput::None,
+            player_one_ready: false,
+            player_two_ready: false,
         };
 
         let node = story.get_node();

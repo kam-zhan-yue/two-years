@@ -36,7 +36,7 @@ use tower_http::cors::CorsLayer;
 use crate::{
     game::{Game, GameState},
     player::Player,
-    story::{StoryInput, StoryState},
+    story::StoryState,
 };
 
 #[tokio::main]
@@ -73,11 +73,9 @@ pub fn app() -> Router {
         story: StoryState {
             json: String::from(contents),
             instructions: Vec::new(),
-            input: StoryInput::None,
             player_one_ready: false,
             player_two_ready: false,
         },
-        tick: 0,
         tx: tx,
     }));
 

@@ -3,10 +3,7 @@ use std::fs;
 use bladeink::story::Story;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    payload::Payload,
-    player::{Player, PLAYER_ONE, PLAYER_TWO},
-};
+use crate::player::{Player, PLAYER_ONE, PLAYER_TWO};
 
 const NODE_START: &str = "NODE__START";
 const NODE_END: &str = "NODE__END";
@@ -16,7 +13,6 @@ const QUESTION_START: &str = "QUESTION__START";
 pub struct StoryState {
     pub json: String,
     pub instructions: Vec<StoryInstruction>,
-    pub input: StoryInput,
     pub player_one_ready: bool,
     pub player_two_ready: bool,
 }
