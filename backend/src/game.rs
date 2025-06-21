@@ -14,7 +14,8 @@ pub const TICKS_PER_SECOND: f64 = 120_f64;
 pub struct GameState {
     pub game: Game,
     pub story: StoryState,
-    pub tx: broadcast::Sender<String>,
+    pub game_tx: broadcast::Sender<String>,
+    pub story_tx: broadcast::Sender<String>,
 }
 
 impl GameState {
@@ -22,7 +23,7 @@ impl GameState {
         // self.tick += 1;
         if let Ok(game_state) = serde_json::to_string(&self.game) {
             // Don't error out if there are no receivers
-            if let Err(_) = self.tx.send(game_state) {}
+            if let Err(_) = self.game_tx.send(game_state) {}
         }
     }
 
@@ -54,7 +55,7 @@ impl GameState {
     fn broadcast_story_node(&mut self, node: StoryNode) {
         self.story.reset_players();
         if let Ok(node) = serde_json::to_string(&node) {
-            if let Err(_) = self.tx.send(node) {}
+            if let Err(_) = self.story_tx.send(node) {}
         }
     }
 
@@ -70,9 +71,6 @@ impl GameState {
             PLAYER_TWO => self.game.player_two = player,
             _ => {}
         }
-
-        // When the player first connects, signal that the game is ready
-        self.update_dialogue(id);
     }
 
     pub fn disconnect(&mut self, id: u64) {

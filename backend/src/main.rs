@@ -76,7 +76,7 @@ pub fn app() -> Router {
             player_one_ready: false,
             player_two_ready: false,
         },
-        tx: tx,
+        game_tx: tx,
     }));
 
     let game = Arc::clone(&game_state);
@@ -120,7 +120,7 @@ async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>) {
     // Subscribe to the game loop broadcast
     {
         let game_thread = game_clone.lock().await;
-        let rx = game_thread.tx.subscribe();
+        let rx = game_thread.game_tx.subscribe();
         tokio::spawn(game_loop_write(sender, rx));
     }
 }
@@ -175,7 +175,7 @@ async fn player_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u6
     let game_clone = game.clone();
     {
         let mut game_thread = game_clone.lock().await;
-        let rx = game_thread.tx.subscribe();
+        let rx = game_thread.game_tx.subscribe();
         game_thread.connect(id);
         tokio::spawn(player_write(sender, rx));
         tokio::spawn(player_read(receiver, game, id));
@@ -218,10 +218,42 @@ async fn dialogue_loop(
     ws.on_upgrade(move |socket| dialogue_websocket(socket, game, id))
 }
 
-async fn dialogue_websocket(socket: WebSocket, _game: Arc<Mutex<GameState>>, _id: u64) {
-    let (mut sender, _) = socket.split();
-    if let Ok(message) = serde_json::to_string("a message") {
-        sender.send(Message::text(message)).await.unwrap();
+async fn dialogue_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64) {
+    let (sender, receiver) = socket.split();
+    let game_clone = game.clone();
+    {
+        let mut game_thread = game_clone.lock().await;
+        let rx = game_thread.story_tx.subscribe();
+        // When the player first connects, signal that the game is ready
+        game_thread.update_dialogue(id);
+        tokio::spawn(dialogue_write(sender, rx));
+        tokio::spawn(dialogue_read(receiver, game, id));
+    }
+}
+
+async fn dialogue_write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<String>) {
+    // Send over all dialogue broadcasts
+    while let Ok(msg) = rx.recv().await {
+        // In any websocket error, break loop
+        if sender.send(Message::text(msg)).await.is_err() {
+            break;
+        }
+    }
+}
+
+async fn dialogue_read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<GameState>>, id: u64) {
+    while let Some(msg) = receiver.next().await {
+        let mut game_ref = game.lock().await;
+        if let Ok(msg) = msg {
+            match msg {
+                Message::Text(text) => game_ref.client_update(id, text.as_str()),
+                // client disconnected
+                Message::Close(_) => game_ref.disconnect(id),
+                _ => {}
+            }
+        } else {
+            // client disconnected
+        }
     }
 }
 
