@@ -14,7 +14,7 @@ use axum::{
     },
     http::{Method, StatusCode},
     response::Response,
-    routing::{any, get, post},
+    routing::{any, get},
     Router,
 };
 use futures_util::{
@@ -61,7 +61,7 @@ pub fn app() -> Router {
 
     let api_router = Router::new()
         .route("/", get(root))
-        .route("/connect/{id}", post(connect_handler));
+        .route("/connect/{id}", get(connect_handler));
 
     let (game_tx, _rx) = broadcast::channel(100);
     let (story_tx, _rx) = broadcast::channel(100);
@@ -140,7 +140,7 @@ async fn connect_handler(
     Path(id): Path<u64>,
 ) -> (StatusCode, String) {
     let game_clone = game.clone();
-    let mut game_thread = game_clone.lock().await;
+    let game_thread = game_clone.lock().await;
     match id {
         1 => {
             if game_thread.game.player_one.id != Player::None {
@@ -154,7 +154,6 @@ async fn connect_handler(
         }
         _ => {}
     }
-    game_thread.connect(id);
     (StatusCode::OK, id.to_string())
 }
 
@@ -170,10 +169,24 @@ async fn player_loop(
 async fn player_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64) {
     let (sender, receiver) = socket.split();
 
-    // Subscribe to the game loop broadcast
     let game_clone = game.clone();
+    let mut game_thread = game_clone.lock().await;
+    // Do a second validation here in case a race condition happens in the get request
+    match id {
+        1 => {
+            if game_thread.game.player_one.id != Player::None {
+                return;
+            }
+        }
+        2 => {
+            if game_thread.game.player_two.id != Player::None {
+                return;
+            }
+        }
+        _ => {}
+    }
+    // Subscribe to the game loop broadcast
     {
-        let mut game_thread = game_clone.lock().await;
         let rx = game_thread.game_tx.subscribe();
         game_thread.connect(id);
         tokio::spawn(player_write(sender, rx));
