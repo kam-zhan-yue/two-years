@@ -2,14 +2,14 @@ import { z } from "zod";
 import type { CharacterAnimation } from "../classes/animation";
 import { Math } from "phaser";
 
-export interface PlayerState {
-  id: number;
+interface PlayerState {
+  id: string;
   position: Math.Vector2;
   animation: CharacterAnimation;
 }
 
-export const RawPlayerSchema = z.object({
-  id: z.number(),
+const RawPlayerSchema = z.object({
+  id: z.string(),
   position: z.object({
     x: z.number(),
     y: z.number(),
@@ -17,13 +17,21 @@ export const RawPlayerSchema = z.object({
   animation: z.string(),
 });
 
-export const PlayerSchema = RawPlayerSchema.transform((raw) => {
+const PlayerSchema = RawPlayerSchema.transform((raw) => {
   if (raw === null) {
     return null;
   }
   return {
     id: raw.id,
-    position: new Math.Vector3(raw.position.x, raw.position.y),
+    position: new Math.Vector2(raw.position.x, raw.position.y),
     animation: raw.animation,
   };
 });
+
+const defaultPlayerState: PlayerState = {
+  id: "0",
+  position: new Math.Vector2(0, 0),
+  animation: "player-idle-down",
+};
+
+export { type PlayerState, RawPlayerSchema, PlayerSchema, defaultPlayerState };

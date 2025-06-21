@@ -173,7 +173,7 @@ impl StoryState {
         let question_line = get_next_line(story);
         let question = process_line(&question_line);
 
-        let answerer = Player::from_str(tags[0].as_str());
+        let answerer = Player::from_ink(tags[0].as_str());
 
         // Populate the choices
         let choices = story.get_current_choices();
@@ -242,7 +242,7 @@ fn process_line(line: &str) -> DialogueLine {
     let speaker_str = split.next().unwrap_or("").trim();
     let line_str = split.next().unwrap_or("").trim();
 
-    let speaker: Player = Player::from_str(speaker_str);
+    let speaker: Player = Player::from_ink(speaker_str);
     DialogueLine {
         speaker: speaker,
         line: line_str.to_owned(),

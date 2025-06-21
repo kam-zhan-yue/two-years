@@ -8,15 +8,16 @@ pub const PLAYER_TWO: u64 = 2;
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Player {
+    #[serde(rename = "0")]
     None,
-    #[serde(rename = "P1")]
+    #[serde(rename = "1")]
     One,
-    #[serde(rename = "P2")]
+    #[serde(rename = "2")]
     Two,
 }
 
 impl Player {
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_ink(s: &str) -> Self {
         match s {
             "P1" => Player::One,
             "P2" => Player::Two,

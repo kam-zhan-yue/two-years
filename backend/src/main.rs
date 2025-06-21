@@ -56,7 +56,8 @@ pub fn app() -> Router {
         .route("/game", get(game_loop))
         .route("/game/{id}", any(player_loop))
         .route("/dialogue/{id}", any(dialogue_loop))
-        .route("/integration-testable", get(integration_testable_handler));
+        .route("/integration-testable", get(echo))
+        .route("/ws", get(echo));
 
     let api_router = Router::new()
         .route("/", get(root))
@@ -255,14 +256,11 @@ async fn dialogue_read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<Gam
     }
 }
 
-// A WebSocket handler that echos any message it receives.
-//
-// This one we'll be integration testing so it can be written in the regular way.
-async fn integration_testable_handler(ws: WebSocketUpgrade) -> Response {
-    ws.on_upgrade(integration_testable_handle_socket)
+async fn echo(ws: WebSocketUpgrade) -> Response {
+    ws.on_upgrade(echo_handler)
 }
 
-async fn integration_testable_handle_socket(mut socket: WebSocket) {
+async fn echo_handler(mut socket: WebSocket) {
     while let Some(Ok(msg)) = socket.recv().await {
         if let Message::Text(msg) = msg {
             if socket

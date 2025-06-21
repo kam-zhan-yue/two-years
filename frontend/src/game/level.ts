@@ -8,18 +8,20 @@ import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type { GameState } from "./types/game-state";
 import { constants } from "@/helpers/constants";
 import { useGameStore } from "@/store";
+import type { PlayerState } from "./types/player-state";
 
 export class Level extends Scene {
   public state: "game" | "ui";
-  private id: number;
-  private npc?: Npc;
+  private id: string;
+  private playerOneNpc?: Npc;
+  private playerTwoNpc?: Npc;
   private player?: Player;
   private inputHandler?: InputHandler;
 
   constructor() {
     super({ key: "Main" });
     this.state = "game";
-    this.id = 0;
+    this.id = constants.emptyId;
   }
 
   setupGame() {
@@ -35,7 +37,7 @@ export class Level extends Scene {
     createCharacterAnims(this.anims);
   }
 
-  initPlayer(id: number, send: SendJsonMessage) {
+  initPlayer(id: string, send: SendJsonMessage) {
     this.id = id;
     if (!this.player && this.inputHandler) {
       console.log("Creating a new Player");
@@ -84,19 +86,58 @@ export class Level extends Scene {
   }
 
   checkNpc(state: GameState) {
-    // console.log(`State is ${JSON.stringify(state, null, 2)}`);
-    const npcState =
-      this.id === constants.playerTwo ? state.playerOne : state.playerTwo;
-    // There is a state, but there is no NPC, then make an NPC
-    if (npcState) {
-      if (!this.npc) {
-        console.log("Creating an NPC");
-        this.npc = new Npc(this.physics, new Math.Vector2(0, 0), "player");
-      }
-      this.npc?.update(npcState);
+    // If our id is currently unset, we want to show NPCs that represent the other players
+    console.log(`State is ${JSON.stringify(state, null, 2)}`);
+    if (this.id === constants.emptyId) {
+      this.updateNpc(state.playerOne, constants.playerOne);
+      this.updateNpc(state.playerTwo, constants.playerTwo);
     } else {
-      this.npc?.destroy();
-      this.npc = undefined;
+      const otherId =
+        this.id === constants.playerTwo
+          ? constants.playerOne
+          : constants.playerTwo;
+      const otherPlayer =
+        this.id === constants.playerTwo ? state.playerOne : state.playerTwo;
+      this.updateNpc(otherPlayer, otherId);
+    }
+  }
+
+  updateNpc(player: PlayerState, id: string) {
+    // If the player is empty, destroy it and move on
+    if (player.id === constants.emptyId) {
+      if (id === constants.playerOne) {
+        this.playerOneNpc?.destroy();
+        this.playerOneNpc = undefined;
+      } else if (id === constants.playerTwo) {
+        this.playerTwoNpc?.destroy();
+        this.playerTwoNpc = undefined;
+      }
+      return;
+    }
+
+    let npc =
+      id === constants.playerOne ? this.playerOneNpc : this.playerTwoNpc;
+    // Else, simulate the npc
+    if (!npc) {
+      console.log(`Creating an NPC for ${id}`);
+      if (id === constants.playerOne) {
+        this.playerOneNpc = new Npc(
+          this.physics,
+          new Math.Vector2(0, 0),
+          "player",
+        );
+      } else if (id === constants.playerTwo) {
+        this.playerTwoNpc = new Npc(
+          this.physics,
+          new Math.Vector2(0, 0),
+          "player",
+        );
+      }
+    }
+    if (id === constants.playerOne) {
+      this.playerOneNpc?.update(player);
+    } else if (id === constants.playerTwo) {
+      this.playerTwoNpc?.update(player);
     }
   }
 }

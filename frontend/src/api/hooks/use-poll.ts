@@ -8,6 +8,7 @@ export const usePoll = () => {
     queryFn: () => {
       return axios.get(API_URL);
     },
-    refetchInterval: 1000,
+    retryDelay: 1000,
+    retry: true,
   });
 };

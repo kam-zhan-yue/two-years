@@ -1,37 +1,36 @@
-import { DIALOGUE_URL, ECHO_URL, GAME_URL } from "@/api/constants";
+import { ECHO_URL } from "@/api/constants";
 import { GameStateSchema, type GameState } from "@/game/types/game-state";
-import { useGameStore } from "@/store";
-import { useEffect, useState } from "react";
+import { GameFlow, useGameStore } from "@/store";
+import { useEffect } from "react";
 import useWebSocket from "react-use-websocket";
 
 const Game = () => {
-  const [gameUrl, setGameUrl] = useState(ECHO_URL);
-  const [dialogueUrl, setDialogueUrl] = useState(ECHO_URL);
+  const flow = useGameStore((state) => state.flow);
+  const gameSocket = useGameStore((state) => state.gameSocket);
+  const dialogueSocket = useGameStore((state) => state.dialogueSocket);
   const setGameState = useGameStore((state) => state.setGameState);
   const playerId = useGameStore((state) => state.playerId);
   const game = useGameStore((state) => state.game);
   const { sendJsonMessage, lastJsonMessage: gameMessage } = useWebSocket(
-    gameUrl,
+    gameSocket,
     {},
     true,
   );
 
   const { sendJsonMessage: dialogueSend, lastJsonMessage: dialogueMessage } =
-    useWebSocket(dialogueUrl, {}, true);
+    useWebSocket(dialogueSocket, {}, true);
 
   // Handle the main player
   useEffect(() => {
-    if (game && playerId !== 0) {
-      setGameUrl(GAME_URL + "/" + playerId);
-      setDialogueUrl(DIALOGUE_URL + "/" + playerId);
+    if (game && flow === GameFlow.Game) {
       game.initPlayer(playerId, sendJsonMessage);
     }
-  }, [playerId, setGameUrl, setDialogueUrl, game, sendJsonMessage]);
+  }, [playerId, flow, playerId, game, sendJsonMessage]);
 
   // Handle the game loop
   useEffect(() => {
     // Ignore messages from the echo site, as it is for setup only
-    if (gameUrl === ECHO_URL) {
+    if (gameSocket === ECHO_URL) {
       return;
     }
 
@@ -49,12 +48,12 @@ const Game = () => {
 
       setGameState(gameState);
     }
-  }, [setGameState, gameMessage, gameUrl]);
+  }, [setGameState, gameMessage, gameSocket]);
 
   // Handle the dialogue loop
   useEffect(() => {
     // Ignore messages from the echo site, as it is for setup only
-    if (dialogueUrl === ECHO_URL) {
+    if (dialogueSocket === ECHO_URL) {
       return;
     }
 
@@ -65,7 +64,7 @@ const Game = () => {
     if (json) {
       console.log(`Dialogue Message is ${JSON.stringify(json, null, 2)}`);
     }
-  }, [dialogueMessage, dialogueUrl]);
+  }, [dialogueMessage, dialogueSocket]);
 
   return <div id="game-container" />;
 };
