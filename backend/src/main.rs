@@ -5,11 +5,7 @@ mod story;
 mod tests;
 mod types;
 
-use std::{
-    fs::{self},
-    sync::Arc,
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 use axum::{
     extract::{
@@ -36,7 +32,7 @@ use tower_http::cors::CorsLayer;
 use crate::{
     game::{Game, GameState},
     player::Player,
-    story::StoryState,
+    story::{process_file, StoryState},
 };
 
 #[tokio::main]
@@ -49,11 +45,11 @@ async fn main() {
 }
 
 pub fn app() -> Router {
-    let contents =
-        fs::read_to_string("ink/game.ink.json").expect("Should have been able to read the file");
-
     let cors_layer = CorsLayer::new()
-        .allow_origin(["https://two-years-g1l1.onrender.com".parse().unwrap()])
+        .allow_origin([
+            "https://two-years-g1l1.onrender.com".parse().unwrap(),
+            "http://localhost:5173".parse().unwrap(),
+        ])
         .allow_methods([Method::GET, Method::POST]);
 
     let game_router: Router<Arc<Mutex<GameState>>> = Router::new()
@@ -66,17 +62,19 @@ pub fn app() -> Router {
         .route("/", get(root))
         .route("/connect/{id}", post(connect_handler));
 
-    let (tx, _rx) = broadcast::channel(100);
+    let (game_tx, _rx) = broadcast::channel(100);
+    let (story_tx, _rx) = broadcast::channel(100);
 
     let game_state = Arc::new(Mutex::new(GameState {
         game: Game::default(),
         story: StoryState {
-            json: String::from(contents),
+            json: process_file("ink/game.ink.json"),
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
         },
-        game_tx: tx,
+        game_tx,
+        story_tx,
     }));
 
     let game = Arc::clone(&game_state);
