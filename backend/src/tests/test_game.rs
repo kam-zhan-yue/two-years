@@ -5,7 +5,6 @@ mod tests {
         future::IntoFuture,
         net::{Ipv4Addr, SocketAddr},
     };
-    use tokio::time::{sleep, Duration};
     use tokio_tungstenite::tungstenite;
 
     use crate::app;

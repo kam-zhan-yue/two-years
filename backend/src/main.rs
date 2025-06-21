@@ -16,9 +16,9 @@ use axum::{
         ws::{Message, WebSocket, WebSocketUpgrade},
         Path, State,
     },
-    http::Method,
+    http::{Method, StatusCode},
     response::Response,
-    routing::{any, get},
+    routing::{any, get, post},
     Router,
 };
 use futures_util::{
@@ -35,6 +35,7 @@ use tower_http::cors::CorsLayer;
 
 use crate::{
     game::{Game, GameState},
+    player::Player,
     story::{StoryInput, StoryState},
 };
 
@@ -56,11 +57,14 @@ pub fn app() -> Router {
         .allow_methods([Method::GET, Method::POST]);
 
     let game_router: Router<Arc<Mutex<GameState>>> = Router::new()
-        .route("/game/{id}", any(game_loop))
+        .route("/game", get(game_loop))
+        .route("/game/{id}", any(player_loop))
         .route("/dialogue/{id}", any(dialogue_loop))
         .route("/integration-testable", get(integration_testable_handler));
 
-    let api_router = Router::new().route("/", get(root));
+    let api_router = Router::new()
+        .route("/", get(root))
+        .route("/connect/{id}", post(connect_handler));
 
     let (tx, _rx) = broadcast::channel(100);
 
@@ -70,6 +74,8 @@ pub fn app() -> Router {
             json: String::from(contents),
             instructions: Vec::new(),
             input: StoryInput::None,
+            player_one_ready: false,
+            player_two_ready: false,
         },
         tick: 0,
         tx: tx,
@@ -102,36 +108,26 @@ async fn root() -> &'static str {
     "Hello, World!"
 }
 
-async fn game_loop(
-    ws: WebSocketUpgrade,
-    State(game): State<Arc<Mutex<GameState>>>,
-    Path(id): Path<u64>,
-) -> Response {
-    ws.on_upgrade(move |socket| game_websocket(socket, game, id))
+/// Players will connect to the game loop before player_loop.
+/// They are only able to get all of the world information.
+/// Connection should happen in a POST request.
+async fn game_loop(ws: WebSocketUpgrade, State(game): State<Arc<Mutex<GameState>>>) -> Response {
+    ws.on_upgrade(move |socket| game_websocket(socket, game))
 }
 
-async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64) {
-    // First verify that the player is able to join the game
-    let game_clone = game.clone();
-    let mut thread = game_clone.lock().await;
-    match id {
-        1 => {
-            if game_clone.lock
-        }
-    }
-    let (sender, receiver) = socket.split();
+async fn game_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>) {
+    let (sender, _) = socket.split();
 
+    let game_clone = game.clone();
     // Subscribe to the game loop broadcast
     {
-        let mut game_thread = game_clone.lock().await;
+        let game_thread = game_clone.lock().await;
         let rx = game_thread.tx.subscribe();
-        game_thread.connect(id);
-        tokio::spawn(write(sender, rx));
-        tokio::spawn(read(receiver, game, id));
+        tokio::spawn(game_loop_write(sender, rx));
     }
 }
 
-async fn write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<String>) {
+async fn game_loop_write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<String>) {
     // Send over all game loop broadcasts
     while let Ok(msg) = rx.recv().await {
         // In any websocket error, break loop
@@ -141,18 +137,71 @@ async fn write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<Strin
     }
 }
 
-async fn read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<GameState>>, id: u64) {
+/// Players will use this endpoint to try to connect as a player.
+async fn connect_handler(
+    State(game): State<Arc<Mutex<GameState>>>,
+    Path(id): Path<u64>,
+) -> (StatusCode, String) {
+    let game_clone = game.clone();
+    let mut game_thread = game_clone.lock().await;
+    match id {
+        1 => {
+            if game_thread.game.player_one.id != Player::None {
+                return (StatusCode::INTERNAL_SERVER_ERROR, "0".to_owned());
+            }
+        }
+        2 => {
+            if game_thread.game.player_two.id != Player::None {
+                return (StatusCode::INTERNAL_SERVER_ERROR, "0".to_owned());
+            }
+        }
+        _ => {}
+    }
+    game_thread.connect(id);
+    (StatusCode::OK, id.to_string())
+}
+
+/// Players will interact with the game with their designated ID in this websocket.
+async fn player_loop(
+    ws: WebSocketUpgrade,
+    State(game): State<Arc<Mutex<GameState>>>,
+    Path(id): Path<u64>,
+) -> Response {
+    ws.on_upgrade(move |socket| player_websocket(socket, game, id))
+}
+
+async fn player_websocket(socket: WebSocket, game: Arc<Mutex<GameState>>, id: u64) {
+    let (sender, receiver) = socket.split();
+
+    // Subscribe to the game loop broadcast
+    let game_clone = game.clone();
+    {
+        let mut game_thread = game_clone.lock().await;
+        let rx = game_thread.tx.subscribe();
+        game_thread.connect(id);
+        tokio::spawn(player_write(sender, rx));
+        tokio::spawn(player_read(receiver, game, id));
+    }
+}
+
+async fn player_write(mut sender: SplitSink<WebSocket, Message>, mut rx: Receiver<String>) {
+    // Send over all game loop broadcasts
+    while let Ok(msg) = rx.recv().await {
+        // In any websocket error, break loop
+        if sender.send(Message::text(msg)).await.is_err() {
+            break;
+        }
+    }
+}
+
+async fn player_read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<GameState>>, id: u64) {
     while let Some(msg) = receiver.next().await {
         let mut game_ref = game.lock().await;
         if let Ok(msg) = msg {
             match msg {
-                Message::Text(text) => {
-                    game_ref.client_update(id, text.as_str());
-                }
-                Message::Close(_) => {
-                    // client disconnected
-                    game_ref.disconnect(id);
-                }
+                Message::Text(text) => game_ref.client_update(id, text.as_str()),
+                // client disconnected
+                Message::Close(_) => game_ref.disconnect(id),
                 _ => {}
             }
         } else {

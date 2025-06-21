@@ -29,7 +29,11 @@ impl GameState {
 
     pub fn client_update(&mut self, id: u64, payload: &str) {
         let payload: Payload = serde_json::from_str(payload).unwrap();
-        self.game.client_update(id, payload);
+        match payload.id {
+            MessageType::Player => self.game.update_player(id, payload),
+            MessageType::Dialogue => self.story.update_dialogue(id),
+            MessageType::Choice => self.story.update_choice(payload),
+        }
     }
 
     pub fn connect(&mut self, id: u64) {
@@ -46,6 +50,8 @@ impl GameState {
         }
     }
 
+    pub fn check_dialogue(&mut self, id: u64) {}
+
     pub fn disconnect(&mut self, id: u64) {
         println!("Player {} has disconnected!", id);
         match id {
@@ -58,8 +64,8 @@ impl GameState {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct Game {
-    player_one: PlayerState,
-    player_two: PlayerState,
+    pub player_one: PlayerState,
+    pub player_two: PlayerState,
 }
 
 impl Default for Game {
@@ -72,17 +78,13 @@ impl Default for Game {
 }
 
 impl Game {
-    pub fn client_update(&mut self, id: u64, payload: Payload) {
-        match payload.id {
-            MessageType::Player => {
-                if let Some(player) = self.get_player(id) {
-                    if let Some(position) = payload.position {
-                        player.position = position;
-                    }
-                    if let Some(animation) = payload.animation {
-                        player.animation = animation;
-                    }
-                }
+    pub fn update_player(&mut self, id: u64, payload: Payload) {
+        if let Some(player) = self.get_player(id) {
+            if let Some(position) = payload.position {
+                player.position = position;
+            }
+            if let Some(animation) = payload.animation {
+                player.animation = animation;
             }
         }
     }

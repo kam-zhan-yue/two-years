@@ -1,10 +1,12 @@
-use std::{default, f32::consts::PI, fs};
+use std::fs;
 
-use axum::http::Response;
 use bladeink::story::Story;
 use serde::{Deserialize, Serialize};
 
-use crate::player::{Player, PLAYER_ONE, PLAYER_TWO};
+use crate::{
+    payload::Payload,
+    player::{Player, PLAYER_ONE, PLAYER_TWO},
+};
 
 const NODE_START: &str = "NODE__START";
 const NODE_END: &str = "NODE__END";
@@ -15,6 +17,8 @@ pub struct StoryState {
     pub json: String,
     pub instructions: Vec<StoryInstruction>,
     pub input: StoryInput,
+    pub player_one_ready: bool,
+    pub player_two_ready: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -66,6 +70,29 @@ struct StoryHistory {
 }
 
 impl StoryState {
+    pub fn update_dialogue(&mut self, id: u64) {
+        if id == PLAYER_ONE {
+            self.player_one_ready = true;
+        } else if id == PLAYER_TWO {
+            self.player_two_ready = true;
+        }
+    }
+
+    pub fn can_continue(self) -> bool {
+        self.player_one_ready && self.player_two_ready
+    }
+
+    pub fn reset_players(&mut self) {
+        self.player_one_ready = false;
+        self.player_two_ready = false;
+    }
+
+    pub fn update_choice(&mut self, payload: Payload) {
+        if let Some(choice) = payload.choice {
+            self.choose(choice);
+        }
+    }
+
     fn get_history(&mut self) -> StoryHistory {
         // Have to rehydrate the story each time
         let mut story = Story::new(&self.json).unwrap();
