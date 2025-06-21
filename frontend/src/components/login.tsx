@@ -9,7 +9,7 @@ const Login = () => {
   const poll = usePoll();
   const connect = useConnect(id);
 
-  const playerId = useGameStore((state) => state.playerId);
+  const flow = useGameStore((state) => state.flow);
   const setPlayerId = useGameStore((state) => state.setPlayerId);
   const setGameFlow = useGameStore((state) => state.setGameFlow);
   const gameState = useGameStore((state) => state.gameState);
@@ -24,8 +24,10 @@ const Login = () => {
   }, [poll.data, setGameFlow]);
 
   useEffect(() => {
+    // If the connect was a success, we want to set our player id and connect to the player websocket
     if (connect.data?.status === 200) {
-      console.log(`Connect Success ${connect.data}`);
+      setPlayerId(String(connect.data.data));
+      setGameFlow(GameFlow.Game);
     }
   }, [connect.data]);
 
@@ -36,11 +38,11 @@ const Login = () => {
 
   const handlePlayerOneClicked = useCallback(() => {
     setId(constants.playerOne);
-  }, [setPlayerId]);
+  }, [setId]);
 
   const handlePlayerTwoClicked = useCallback(() => {
     setId(constants.playerTwo);
-  }, [setPlayerId]);
+  }, [setId]);
 
   if (poll.isPending) {
     return (
@@ -57,7 +59,7 @@ const Login = () => {
 
   return (
     <>
-      {playerId === constants.emptyId && (
+      {flow === GameFlow.Menu && (
         <div className="fixed inset-y-40">
           <div className="flex gap-2">
             <button

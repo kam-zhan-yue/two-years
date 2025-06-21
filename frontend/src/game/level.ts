@@ -57,11 +57,6 @@ export class Level extends Scene {
     this.player = undefined;
   }
 
-  removeNpc() {
-    this.npc?.body.destroy();
-    this.npc = undefined;
-  }
-
   create() {
     this.setupGame();
   }
@@ -87,7 +82,6 @@ export class Level extends Scene {
 
   checkNpc(state: GameState) {
     // If our id is currently unset, we want to show NPCs that represent the other players
-    console.log(`State is ${JSON.stringify(state, null, 2)}`);
     if (this.id === constants.emptyId) {
       this.updateNpc(state.playerOne, constants.playerOne);
       this.updateNpc(state.playerTwo, constants.playerTwo);
