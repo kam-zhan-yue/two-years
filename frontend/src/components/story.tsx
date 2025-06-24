@@ -1,6 +1,6 @@
 import { useGameStore } from "@/store";
-import { Typewriter } from "./typewriter";
-import { useCallback, useEffect, useState } from "react";
+import { Typewriter, type TypewriterHandle } from "./typewriter";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   StoryStateSchema,
   type DialogueLine,
@@ -20,10 +20,8 @@ const Story = () => {
   const storyState = useGameStore((store) => store.storyState);
 
   // Story State Stuff
-  const [line, setLine] = useState<DialogueLine>({
-    speaker: "",
-    line: "",
-  });
+  const [lineIndex, setLineIndex] = useState(0);
+  const typewriterRef = useRef<TypewriterHandle>(null);
 
   // Handle the dialogue loop
   useEffect(() => {
@@ -49,20 +47,56 @@ const Story = () => {
 
       // Set the state stuff here!
       if (storyState.type === "dialogue") {
-        console.info(`Setting line to ${storyState.body.lines[0]}`);
-        setLine(storyState.body.lines[0]);
+        if (storyState.body.lines.length > 0) {
+          setLineIndex(0);
+          if (typewriterRef.current) {
+            typewriterRef.current.setText(storyState.body.lines[0].line);
+          }
+        }
       }
     }
-  }, [dialogueMessage, dialogueSocket, setStoryState, setLine]);
+  }, [
+    dialogueMessage,
+    dialogueSocket,
+    setStoryState,
+    setLineIndex,
+    typewriterRef,
+  ]);
 
   const onTypewriterComplete = useCallback(() => {}, []);
-  const onTypewriterNext = useCallback(() => {}, []);
+
+  const onTypewriterNext = useCallback(() => {
+    if (storyState.type === "dialogue") {
+      if (lineIndex < storyState.body.lines.length - 1) {
+        console.info(`Setting line index to ${lineIndex + 1}`);
+        if (typewriterRef.current) {
+          typewriterRef.current.setText(
+            storyState.body.lines[lineIndex + 1].line,
+          );
+        }
+
+        setLineIndex(lineIndex + 1);
+      } else {
+        // go to the next dialogue!
+        console.info("go to next!");
+      }
+    }
+  }, [storyState, lineIndex, setLineIndex, typewriterRef]);
+
+  const handleClick = useCallback(() => {
+    console.info("clicking");
+    if (typewriterRef.current) {
+      typewriterRef.current.handleClick();
+    }
+  }, [typewriterRef]);
 
   return (
-    <div className="fixed inset-0 w-full mx-auto p-4 bg-white/80">
-      WHATT
+    <div
+      onClick={handleClick}
+      className="fixed inset-0 w-full mx-auto p-4 bg-white/80"
+    >
       <Typewriter
-        text={line.line}
+        ref={typewriterRef}
         delay={15}
         fontSize={22}
         onComplete={onTypewriterComplete}
