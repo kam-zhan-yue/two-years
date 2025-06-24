@@ -24,8 +24,6 @@ interface Response {
   line: DialogueLine;
 }
 
-interface End {}
-
 type StoryState =
   | { type: "start" }
   | { type: "dialogue"; body: Dialogue }
