@@ -259,8 +259,8 @@ async fn dialogue_read(mut receiver: SplitStream<WebSocket>, game: Arc<Mutex<Gam
         if let Ok(msg) = msg {
             match msg {
                 Message::Text(text) => game_ref.client_update(id, text.as_str()),
-                // client disconnected
-                Message::Close(_) => game_ref.disconnect(id),
+                // client disconnected, but don't do anything since it is dialogue websocket
+                Message::Close(_) => {}
                 _ => {}
             }
         } else {

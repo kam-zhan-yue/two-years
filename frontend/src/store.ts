@@ -5,6 +5,7 @@ import { defaultGameState, type GameState } from "./game/types/game-state";
 import type { Level } from "./game/level";
 import { DIALOGUE_URL, ECHO_URL, GAME_URL } from "./api/constants";
 import { constants } from "./helpers/constants";
+import { defaultStoryState, type StoryState } from "./game/types/story-state";
 
 interface PlayerState {
   position: Math.Vector2;
@@ -20,10 +21,12 @@ enum GameFlow {
 interface GameStore {
   playerId: string;
   gameState: GameState;
+  storyState: StoryState;
   game?: Level;
   setGame: (game: Level) => void;
   setPlayerId: (id: string) => void;
   setGameState: (newState: GameState) => void;
+  setStoryState: (newState: StoryState) => void;
   getPlayer: () => PlayerState | null;
   getOtherPlayer: () => PlayerState | null;
   flow: GameFlow;
@@ -35,6 +38,8 @@ interface GameStore {
 const useGameStore = create<GameStore>()((set, get) => ({
   playerId: constants.emptyId,
   gameState: defaultGameState,
+  storyState: defaultStoryState,
+  setStoryState: (newState) => set({ storyState: newState }),
   setGame: (game) => set({ game: game }),
   setPlayerId: (id) => set({ playerId: id }),
   setGameState: (newState) => set({ gameState: newState }),

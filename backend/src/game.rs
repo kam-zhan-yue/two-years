@@ -75,6 +75,9 @@ impl GameState {
 
     pub fn disconnect(&mut self, id: u64) {
         println!("Player {} has disconnected!", id);
+        println!("Resetting the story.");
+        self.story.disconnect_player(id);
+        self.story.reset();
         match id {
             PLAYER_ONE => self.game.player_one = PlayerState::default(),
             PLAYER_TWO => self.game.player_two = PlayerState::default(),

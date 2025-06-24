@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-type StoryType = "dialogue" | "question" | "response";
-
 interface DialogueLine {
   speaker: string;
   line: string;
@@ -28,10 +26,11 @@ interface Response {
 
 interface End {}
 
-interface StoryState {
-  type: StoryType;
-  body: Dialogue | Question | Response | End;
-}
+type StoryState =
+  | { type: "dialogue"; body: Dialogue }
+  | { type: "question"; body: Question }
+  | { type: "response"; body: Response }
+  | { type: "end"; body: End };
 
 const DialogueLineSchema = z.object({
   speaker: z.string(),
@@ -78,6 +77,11 @@ const StoryStateSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
+const defaultStoryState: StoryState = {
+  type: "end",
+  body: {},
+};
+
 export {
   type StoryState,
   type Question,
@@ -86,4 +90,5 @@ export {
   type DialogueLine,
   type StoryChoice,
   StoryStateSchema,
+  defaultStoryState,
 };

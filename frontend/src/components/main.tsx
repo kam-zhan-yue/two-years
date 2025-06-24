@@ -5,6 +5,7 @@ import { useGameStore } from "@/store";
 import Phaser from "phaser";
 import { useEffect } from "react";
 import { Game } from "./game";
+import { Story } from "./story";
 
 const Main = () => {
   const setGame = useGameStore((state) => state.setGame);
@@ -40,7 +41,12 @@ const Main = () => {
       phaserGame.destroy(true);
     };
   }, [setGame]);
-  return <Game />;
+  return (
+    <>
+      <Game />
+      <Story />
+    </>
+  );
 };
 
 export default Main;

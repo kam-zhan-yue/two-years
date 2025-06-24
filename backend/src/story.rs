@@ -83,6 +83,18 @@ impl StoryState {
         self.player_two_ready = false;
     }
 
+    pub fn disconnect_player(&mut self, id: u64) {
+        if id == PLAYER_ONE {
+            self.player_one_ready = false;
+        } else if id == PLAYER_TWO {
+            self.player_two_ready = false;
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.instructions = Vec::new();
+    }
+
     fn get_history(&mut self) -> StoryHistory {
         // Have to rehydrate the story each time
         let mut story = Story::new(&self.json).unwrap();
