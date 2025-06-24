@@ -1,5 +1,6 @@
 import { ECHO_URL } from "@/api/constants";
 import { GameStateSchema, type GameState } from "@/game/types/game-state";
+import { StoryStateSchema, type StoryState } from "@/game/types/story-state";
 import { GameFlow, useGameStore } from "@/store";
 import { useEffect } from "react";
 import useWebSocket from "react-use-websocket";
@@ -62,7 +63,13 @@ const Game = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const json = dialogueMessage as any;
     if (json) {
-      console.log(`Dialogue Message is ${JSON.stringify(json, null, 2)}`);
+      const parsed = StoryStateSchema.safeParse(json);
+      if (!parsed.success) {
+        console.error(`Invalid story state: ${parsed.error}`);
+        return;
+      }
+      const storyState = parsed.data as StoryState;
+      console.log(`Dialogue Message is ${JSON.stringify(storyState, null, 2)}`);
     }
   }, [dialogueMessage, dialogueSocket]);
 
