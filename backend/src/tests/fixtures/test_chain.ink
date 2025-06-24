@@ -15,13 +15,11 @@ P2: Shall we go down to the cafe at the end of the road?
 + How dreadful.
 
 ===CAFE===
-NODE__START
 P1: Why this is a fine evening
 NODE__END
 -> END
 
 ===NOT_CAFE===
-NODE__START
 P1: Let's go to the beach instead.
 P2: Very well
 NODE__END

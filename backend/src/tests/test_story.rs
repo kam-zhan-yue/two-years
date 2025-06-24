@@ -73,11 +73,11 @@ mod tests {
         let response = story.choose(0);
         assert_eq!(
             response,
-            StoryNode::Response {
-                line: DialogueLine {
+            StoryNode::Dialogue {
+                lines: vec![DialogueLine {
                     speaker: Player::Two,
                     line: String::from("Go to the beach")
-                }
+                }]
             }
         );
 
@@ -152,22 +152,17 @@ mod tests {
         let response = story.choose(0);
         assert_eq!(
             response,
-            StoryNode::Response {
-                line: DialogueLine {
-                    speaker: Player::One,
-                    line: String::from("Why that is a mighty fine idea.")
-                }
-            }
-        );
-
-        let node = story.get_node();
-        assert_eq!(
-            node,
             StoryNode::Dialogue {
-                lines: vec![DialogueLine {
-                    speaker: Player::One,
-                    line: String::from("Why this is a fine evening")
-                },]
+                lines: vec![
+                    DialogueLine {
+                        speaker: Player::One,
+                        line: String::from("Why that is a mighty fine idea.")
+                    },
+                    DialogueLine {
+                        speaker: Player::One,
+                        line: String::from("Why this is a fine evening")
+                    }
+                ]
             }
         );
 

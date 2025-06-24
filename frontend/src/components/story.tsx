@@ -2,12 +2,19 @@ import { useGameStore } from "@/store";
 import { Typewriter, type TypewriterHandle } from "./typewriter";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  type StoryChoice,
   StoryStateSchema,
-  type DialogueLine,
   type StoryState,
 } from "@/game/types/story-state";
 import useWebSocket from "react-use-websocket";
 import { ECHO_URL } from "@/api/constants";
+import {
+  ChoiceMessageSchema,
+  DialogueMessageSchema,
+  MessageType,
+} from "@/game/types/messages";
+import { Waiting } from "./waiting";
+import { Choices } from "./choices";
 
 const Story = () => {
   // Web Socket Stuff
@@ -18,9 +25,12 @@ const Story = () => {
   // Game Store Stuff
   const setStoryState = useGameStore((state) => state.setStoryState);
   const storyState = useGameStore((store) => store.storyState);
+  const playerId = useGameStore((store) => store.playerId);
 
   // Story State Stuff
   const [lineIndex, setLineIndex] = useState(0);
+  const [waiting, setWaiting] = useState(false);
+  const [choices, setChoices] = useState<StoryChoice[]>([]);
   const typewriterRef = useRef<TypewriterHandle>(null);
 
   // Handle the dialogue loop
@@ -37,7 +47,9 @@ const Story = () => {
     if (json) {
       const parsed = StoryStateSchema.safeParse(json);
       if (!parsed.success) {
-        console.error(`Invalid story state: ${parsed.error}`);
+        console.error(
+          `Invalid story state: ${parsed.error}\n${JSON.stringify(json, null, 2)}`,
+        );
         return;
       }
       const storyState = parsed.data as StoryState;
@@ -46,13 +58,22 @@ const Story = () => {
       setStoryState(storyState);
 
       // Set the state stuff here!
+      if (!typewriterRef.current) {
+        return;
+      }
+      // Init all variables
+      setLineIndex(0);
+      setWaiting(false);
+      setChoices([]);
+
       if (storyState.type === "dialogue") {
         if (storyState.body.lines.length > 0) {
-          setLineIndex(0);
-          if (typewriterRef.current) {
-            typewriterRef.current.setText(storyState.body.lines[0].line);
-          }
+          typewriterRef.current.setText(storyState.body.lines[0].line);
         }
+      } else if (storyState.type === "question") {
+        typewriterRef.current.setText(storyState.body.question.line);
+      } else if (storyState.type === "end") {
+        typewriterRef.current.setText("Story has ended.");
       }
     }
   }, [
@@ -79,6 +100,15 @@ const Story = () => {
       } else {
         // go to the next dialogue!
         console.info("go to next!");
+        setWaiting(true);
+        sendDialogue();
+      }
+    } else if (storyState.type === "question") {
+      // If we are the answer, then populate the choices
+      if (storyState.body.answerer === playerId) {
+        setChoices(storyState.body.choices);
+      } else {
+        setWaiting(true);
       }
     }
   }, [storyState, lineIndex, setLineIndex, typewriterRef]);
@@ -90,18 +120,54 @@ const Story = () => {
     }
   }, [typewriterRef]);
 
+  const handleSelectChoice = useCallback((choice: number) => {
+    console.info(`choosing ${choice}`);
+    sendChoice(choice);
+  }, []);
+
+  const sendDialogue = useCallback(() => {
+    const data = {
+      id: MessageType.dialogue,
+    };
+    try {
+      DialogueMessageSchema.parse(data);
+      dialogueSend(data);
+    } catch (error) {
+      console.error("Validation failed for dialogue message: ", error);
+    }
+  }, [dialogueSend]);
+
+  const sendChoice = useCallback(
+    (choice: number) => {
+      const data = {
+        id: MessageType.choice,
+        choice,
+      };
+      try {
+        ChoiceMessageSchema.parse(data);
+        dialogueSend(data);
+      } catch (error) {
+        console.error("Validation failed for dialogue message: ", error);
+      }
+    },
+    [dialogueSend],
+  );
+
   return (
-    <div
-      onClick={handleClick}
-      className="fixed inset-0 w-full mx-auto p-4 bg-white/80"
-    >
-      <Typewriter
-        ref={typewriterRef}
-        delay={15}
-        fontSize={22}
-        onComplete={onTypewriterComplete}
-        onNext={onTypewriterNext}
-      />
+    <div className="fixed w-full h-full" onClick={handleClick}>
+      {choices.length > 0 && (
+        <Choices choices={choices} onSelect={handleSelectChoice} />
+      )}
+      {waiting && <Waiting />}
+      <div className="fixed bottom-5 left-5 right-5 h-40 overflow-y-auto bg-white">
+        <Typewriter
+          ref={typewriterRef}
+          delay={15}
+          fontSize={22}
+          onComplete={onTypewriterComplete}
+          onNext={onTypewriterNext}
+        />
+      </div>
     </div>
   );
 };

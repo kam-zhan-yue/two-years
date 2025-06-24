@@ -1,10 +1,12 @@
 import { z } from "zod";
 
-export enum MessageType {
+enum MessageType {
   player = "player",
+  dialogue = "dialogue",
+  choice = "choice",
 }
 
-export const PlayerMessageSchema = z.object({
+const PlayerMessageSchema = z.object({
   id: z.literal(MessageType.player),
   position: z.object({
     x: z.number(),
@@ -12,3 +14,19 @@ export const PlayerMessageSchema = z.object({
   }),
   animation: z.string(),
 });
+
+const DialogueMessageSchema = z.object({
+  id: z.literal(MessageType.dialogue),
+});
+
+const ChoiceMessageSchema = z.object({
+  id: z.literal(MessageType.choice),
+  choice: z.number(),
+});
+
+export {
+  MessageType,
+  PlayerMessageSchema,
+  DialogueMessageSchema,
+  ChoiceMessageSchema,
+};

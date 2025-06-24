@@ -42,9 +42,6 @@ pub enum StoryNode {
         answerer: Player,
         choices: Vec<StoryChoice>,
     },
-    Response {
-        line: DialogueLine,
-    },
     End,
 }
 
@@ -219,13 +216,18 @@ impl StoryState {
     ) -> StoryNode {
         if let Some(StoryNode::Question { answerer, .. }) = nodes.last() {
             story.choose_choice_index(index as usize).unwrap();
+            // Get the response from the question
             let line = get_next_line(story);
-            StoryNode::Response {
-                line: DialogueLine {
-                    speaker: *answerer,
-                    line,
-                },
+            let response = DialogueLine {
+                speaker: *answerer,
+                line,
+            };
+            // Continue with the story and return the dialogue
+            let mut node = self.process_dialogue(story);
+            if let StoryNode::Dialogue { ref mut lines } = node {
+                lines.insert(0, response);
             }
+            return node;
         } else {
             panic!("The last node is not a question! {:?}", nodes.last());
         }

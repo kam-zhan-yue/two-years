@@ -80,7 +80,6 @@ const Typewriter = forwardRef<TypewriterHandle, TypewriterProps>(
           fontSize: `${fontSize}px`,
           lineHeight: "1em",
           overflowWrap: "break-word",
-          cursor: "pointer",
           userSelect: "none",
         }}
         onClick={handleClick}

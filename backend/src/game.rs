@@ -40,6 +40,7 @@ impl GameState {
         let story = &mut self.story;
         story.update_dialogue(id);
         if story.can_continue() {
+            println!("STORY | Continuing from update_dialogue");
             let node = self.story.get_node();
             self.broadcast_story_node(node);
         }
@@ -47,6 +48,7 @@ impl GameState {
 
     pub fn update_choice(&mut self, payload: Payload) {
         if let Some(choice) = payload.choice {
+            println!("STORY | Continuing from update_choice");
             let node = self.story.choose(choice);
             self.broadcast_story_node(node);
         }

@@ -27,10 +27,11 @@ interface Response {
 interface End {}
 
 type StoryState =
+  | { type: "start" }
   | { type: "dialogue"; body: Dialogue }
   | { type: "question"; body: Question }
   | { type: "response"; body: Response }
-  | { type: "end"; body: End };
+  | { type: "end" };
 
 const DialogueLineSchema = z.object({
   speaker: z.string(),
@@ -51,12 +52,10 @@ const ResponseSchema = z.object({
 });
 
 const QuestionSchema = z.object({
-  player: z.string(),
+  question: DialogueLineSchema,
   answerer: z.string(),
   choices: z.array(StoryChoiceSchema),
 });
-
-const EndSchema = z.object({});
 
 const StoryStateSchema = z.discriminatedUnion("type", [
   z.object({
@@ -73,13 +72,14 @@ const StoryStateSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("end"),
-    body: EndSchema,
+  }),
+  z.object({
+    type: z.literal("start"),
   }),
 ]);
 
 const defaultStoryState: StoryState = {
-  type: "end",
-  body: {},
+  type: "start",
 };
 
 export {
