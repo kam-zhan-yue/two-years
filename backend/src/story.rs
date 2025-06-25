@@ -13,7 +13,6 @@ const QUESTION_START: &str = "QUESTION__START";
 #[derive(Debug, Clone)]
 pub struct StoryState {
     pub json: String,
-    pub current_interaction: String,
     pub instructions: Vec<StoryInstruction>,
     pub player_one_ready: bool,
     pub player_two_ready: bool,
@@ -119,10 +118,23 @@ impl StoryState {
             self.instructions.push(StoryInstruction::Question);
             self.process_question(story)
         } else if line.starts_with(INTERACTION) {
-            self.process_interaction(&line)
+            let interaction = line.strip_prefix(INTERACTION).unwrap();
+            self.instructions
+                .push(StoryInstruction::Interaction(interaction.to_owned()));
+            self.process_interaction(interaction)
         } else {
             panic!("Story is unprocessable at {:?}", line);
         }
+    }
+
+    /// Returns if the latest node is a valid choice node
+    pub fn can_choose(&mut self, choice: i32) -> bool {
+        let history = self.get_history();
+        let last_node = history.nodes.last();
+        if let Some(StoryNode::Question { choices, .. }) = last_node {
+            return choice < choices.len() as i32;
+        }
+        return false;
     }
 
     pub fn choose(&mut self, index: i32) -> StoryNode {
@@ -131,16 +143,18 @@ impl StoryState {
         return self.process_choice(&mut history.story, &history.nodes, index);
     }
 
-    pub fn interact(&mut self, interaction: String) -> StoryNode {
-        if interaction == self.current_interaction {
-            self.instructions
-                .push(StoryInstruction::Interaction(interaction));
-            return self.get_node();
+    /// Only returns if the latest node is a valid interact node
+    pub fn interact(&mut self, interaction: String) -> Option<StoryNode> {
+        let history = self.get_history();
+        let last_node = history.nodes.last();
+        if let Some(StoryNode::Interaction(interaction_id)) = last_node {
+            if *interaction_id == interaction {
+                return Some(self.get_node());
+            } else {
+                None
+            }
         } else {
-            panic!(
-                "STORY | Tried to interact with {}, but current interaction is {}",
-                interaction, self.current_interaction
-            )
+            None
         }
     }
 
@@ -173,7 +187,7 @@ impl StoryState {
                 assert!(line.starts_with(INTERACTION));
                 let interaction_id = line.strip_prefix(INTERACTION).unwrap();
                 assert!(interaction_id == interaction);
-                self.process_interaction(&line)
+                self.process_interaction(&interaction_id)
             }
         }
     }
@@ -252,10 +266,8 @@ impl StoryState {
         }
     }
 
-    fn process_interaction(&mut self, line: &str) -> StoryNode {
-        let interaction_id = line.strip_prefix(INTERACTION).unwrap();
-        self.current_interaction = interaction_id.to_owned();
-        return StoryNode::Interaction(interaction_id.to_owned());
+    fn process_interaction(&mut self, interaction: &str) -> StoryNode {
+        return StoryNode::Interaction(interaction.to_owned());
     }
 }
 

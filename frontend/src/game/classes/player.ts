@@ -75,7 +75,9 @@ export default class Player extends Character {
       PlayerMessageSchema.parse(data);
       this.send(data);
     } catch (error) {
-      console.error("Validation failed for player message: ", error);
+      console.error(
+        `Validation failed for player message: ${error}\nData is ${data}`,
+      );
     }
   }
 

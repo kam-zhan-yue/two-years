@@ -4,6 +4,7 @@ enum MessageType {
   player = "player",
   dialogue = "dialogue",
   choice = "choice",
+  interaction = "interaction",
 }
 
 const PlayerMessageSchema = z.object({
@@ -24,9 +25,15 @@ const ChoiceMessageSchema = z.object({
   choice: z.number(),
 });
 
+const InteractionMessageSchema = z.object({
+  id: z.literal(MessageType.interaction),
+  interaction: z.string(),
+});
+
 export {
   MessageType,
   PlayerMessageSchema,
   DialogueMessageSchema,
   ChoiceMessageSchema,
+  InteractionMessageSchema,
 };

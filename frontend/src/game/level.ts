@@ -12,6 +12,7 @@ import type { PlayerState } from "./types/player-state";
 import type { Interaction } from "./types/story-state";
 import { Start } from "./classes/setups/start";
 import { InteractionHandler } from "./handlers/interaction-handler";
+import { InteractionMessageSchema, MessageType } from "./types/messages";
 
 export class Level extends Scene {
   public state: "game" | "ui";
@@ -21,6 +22,7 @@ export class Level extends Scene {
   private playerTwoNpc?: Npc;
   private inputHandler?: InputHandler;
   private interactionHandler?: InteractionHandler;
+  private sendDialogue?: SendJsonMessage;
 
   constructor() {
     super({ key: "Main" });
@@ -40,6 +42,11 @@ export class Level extends Scene {
     this.cameras.main.centerOn(island.image.x, island.image.y);
     this.cameras.main.setZoom(3);
     createCharacterAnims(this.anims);
+  }
+
+  initDialogue(sendDialogue: SendJsonMessage) {
+    console.info("Inited Dialogue");
+    this.sendDialogue = sendDialogue;
   }
 
   initPlayer(id: string, send: SendJsonMessage) {
@@ -89,6 +96,31 @@ export class Level extends Scene {
         case "ui":
           break;
       }
+    }
+
+    if (this.inputHandler?.isInteractDown()) {
+      const interaction = this.interactionHandler?.getCurrentInteraction();
+      if (interaction?.interaction) {
+        this.sendInteraction(interaction.interaction);
+      } else if (interaction) {
+        console.info(`Locally interact with ${interaction.getId()}`);
+      }
+    }
+  }
+
+  sendInteraction(interaction: Interaction) {
+    console.info(`Send interact to server ${interaction}`);
+    const data = {
+      id: MessageType.interaction,
+      interaction,
+    };
+    try {
+      InteractionMessageSchema.parse(data);
+      this.sendDialogue?.(data);
+    } catch (error) {
+      console.error(
+        `Validation failed for interaction message: ${error}\nData is ${data}`,
+      );
     }
   }
 

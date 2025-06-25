@@ -49,17 +49,20 @@ impl GameState {
 
     pub fn update_choice(&mut self, payload: Payload) {
         if let Some(choice) = payload.choice {
-            println!("STORY | Continuing from update_choice");
-            let node = self.story.choose(choice);
-            self.broadcast_story_node(node);
+            if self.story.can_choose(choice) {
+                println!("STORY | Continuing from update_choice");
+                let node = self.story.choose(choice);
+                self.broadcast_story_node(node);
+            }
         }
     }
 
     pub fn update_interaction(&mut self, payload: Payload) {
-        if let Some(interaction) = payload.interaction {
-            println!("STORY | Continuing from interaction {}", interaction);
-            let node = self.story.interact(interaction);
-            self.broadcast_story_node(node);
+        if let Some(ref interaction) = payload.interaction {
+            if let Some(node) = self.story.interact(interaction.to_owned()) {
+                println!("STORY | Continuing from interaction {}", interaction);
+                self.broadcast_story_node(node);
+            }
         }
     }
 

@@ -12,7 +12,6 @@ mod tests {
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
-            current_interaction: String::new(),
         };
 
         let node = story.get_node();
@@ -43,7 +42,6 @@ mod tests {
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
-            current_interaction: String::new(),
         };
 
         let node = story.get_node();
@@ -94,13 +92,16 @@ mod tests {
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
-            current_interaction: String::new(),
         };
         let node = story.get_node();
 
         assert_eq!(node, StoryNode::Interaction("GAME_START".to_owned()));
+        println!("Working");
 
-        let node = story.interact("GAME_START".to_owned());
+        let node = story
+            .interact("GAME_START".to_owned())
+            .expect("Expected a StoryNode");
+        println!("Working 2");
 
         assert_eq!(
             node,
@@ -122,7 +123,9 @@ mod tests {
 
         assert_eq!(node, StoryNode::Interaction("COFFEE".to_owned()));
 
-        let node = story.interact("COFFEE".to_owned());
+        let node = story
+            .interact("COFFEE".to_owned())
+            .expect("Expected a StoryNode");
 
         assert_eq!(
             node,
@@ -146,7 +149,6 @@ mod tests {
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
-            current_interaction: String::new(),
         };
 
         let node = story.get_node();

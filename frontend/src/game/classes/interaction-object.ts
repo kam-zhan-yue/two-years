@@ -3,6 +3,7 @@ import type { Interaction } from "../types/story-state";
 import GameImage from "./game-image";
 
 class InteractionObject {
+  private id: string;
   private scene: Phaser.Scene;
   private position: Phaser.Math.Vector2;
   private size: Phaser.Math.Vector2;
@@ -12,6 +13,7 @@ class InteractionObject {
   private tooltip?: GameImage;
 
   constructor(
+    id: string,
     scene: Phaser.Scene,
     position: Phaser.Math.Vector2,
     size: Phaser.Math.Vector2,
@@ -20,6 +22,7 @@ class InteractionObject {
     depth?: number,
     offset?: number,
   ) {
+    this.id = id;
     this.scene = scene;
     this.interaction = interaction;
     this.position = position;
@@ -55,6 +58,10 @@ class InteractionObject {
       this.tooltip.image.setOrigin(0.5);
       this.tooltip.image.setVisible(false);
     }
+  }
+
+  getId(): string {
+    return this.id;
   }
 
   getMinBound(): Phaser.Math.Vector2 {

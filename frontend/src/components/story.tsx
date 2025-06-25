@@ -34,6 +34,10 @@ const Story = () => {
   const [choices, setChoices] = useState<StoryChoice[]>([]);
   const typewriterRef = useRef<TypewriterHandle>(null);
 
+  useEffect(() => {
+    game?.initDialogue(dialogueSend);
+  }, [game, dialogueSend]);
+
   // Handle the dialogue loop
   useEffect(() => {
     // Ignore messages from the echo site, as it is for setup only
