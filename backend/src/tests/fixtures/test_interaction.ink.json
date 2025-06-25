@@ -1,0 +1,1 @@
+{"inkVersion":21,"root":[["^INTERACTION__GAME_START","\n","^NODE__START","\n","^P1: Do me a favour and fetch me a coffee.","\n","^P2: Sure thing, love.","\n","^NODE__END","\n","^INTERACTION__COFFEE","\n","^NODE__START","\n","^P1: Thank you very much.","\n","^NODE__END","\n",["done",{"#f":5,"#n":"g-0"}],null],"done",{"#f":1}],"listDefs":{}}

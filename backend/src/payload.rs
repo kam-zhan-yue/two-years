@@ -8,6 +8,7 @@ pub struct Payload {
     pub position: Option<Vector2>,
     pub animation: Option<String>,
     pub choice: Option<i32>,
+    pub interaction: Option<String>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -16,4 +17,5 @@ pub enum MessageType {
     Player,
     Dialogue,
     Choice,
+    Interaction,
 }

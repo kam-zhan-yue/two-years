@@ -12,6 +12,7 @@ mod tests {
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
+            current_interaction: String::new(),
         };
 
         let node = story.get_node();
@@ -42,6 +43,7 @@ mod tests {
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
+            current_interaction: String::new(),
         };
 
         let node = story.get_node();
@@ -86,12 +88,65 @@ mod tests {
     }
 
     #[test]
+    fn test_interaction() {
+        let mut story = StoryState {
+            json: process_file("src/tests/fixtures/test_interaction.ink.json"),
+            instructions: Vec::new(),
+            player_one_ready: false,
+            player_two_ready: false,
+            current_interaction: String::new(),
+        };
+        let node = story.get_node();
+
+        assert_eq!(node, StoryNode::Interaction("GAME_START".to_owned()));
+
+        let node = story.interact("GAME_START".to_owned());
+
+        assert_eq!(
+            node,
+            StoryNode::Dialogue {
+                lines: vec![
+                    DialogueLine {
+                        speaker: Player::One,
+                        line: String::from("Do me a favour and fetch me a coffee.")
+                    },
+                    DialogueLine {
+                        speaker: Player::Two,
+                        line: String::from("Sure thing, love.")
+                    }
+                ]
+            }
+        );
+
+        let node = story.get_node();
+
+        assert_eq!(node, StoryNode::Interaction("COFFEE".to_owned()));
+
+        let node = story.interact("COFFEE".to_owned());
+
+        assert_eq!(
+            node,
+            StoryNode::Dialogue {
+                lines: vec![DialogueLine {
+                    speaker: Player::One,
+                    line: String::from("Thank you very much.")
+                }]
+            }
+        );
+
+        let node = story.get_node();
+
+        assert_eq!(node, StoryNode::End);
+    }
+
+    #[test]
     fn test_chain() {
         let mut story = StoryState {
             json: process_file("src/tests/fixtures/test_chain.ink.json"),
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
+            current_interaction: String::new(),
         };
 
         let node = story.get_node();

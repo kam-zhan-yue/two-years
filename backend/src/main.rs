@@ -73,6 +73,7 @@ pub fn app() -> Router {
             instructions: Vec::new(),
             player_one_ready: false,
             player_two_ready: false,
+            current_interaction: String::new(),
         },
         game_tx,
         story_tx,

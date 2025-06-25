@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::player::{Player, PLAYER_ONE, PLAYER_TWO};
 
+const INTERACTION: &str = "INTERACTION__";
 const NODE_START: &str = "NODE__START";
 const NODE_END: &str = "NODE__END";
 const QUESTION_START: &str = "QUESTION__START";
@@ -12,16 +13,10 @@ const QUESTION_START: &str = "QUESTION__START";
 #[derive(Debug, Clone)]
 pub struct StoryState {
     pub json: String,
+    pub current_interaction: String,
     pub instructions: Vec<StoryInstruction>,
     pub player_one_ready: bool,
     pub player_two_ready: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum StoryInput {
-    None,
-    Waiting,
-    Choice,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -29,6 +24,7 @@ pub enum StoryInstruction {
     Dialogue,
     Question,
     Choice(i32),
+    Interaction(String),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -42,6 +38,7 @@ pub enum StoryNode {
         answerer: Player,
         choices: Vec<StoryChoice>,
     },
+    Interaction(String),
     End,
 }
 
@@ -121,6 +118,8 @@ impl StoryState {
         } else if line == QUESTION_START {
             self.instructions.push(StoryInstruction::Question);
             self.process_question(story)
+        } else if line.starts_with(INTERACTION) {
+            self.process_interaction(&line)
         } else {
             panic!("Story is unprocessable at {:?}", line);
         }
@@ -130,6 +129,19 @@ impl StoryState {
         let mut history = self.get_history();
         self.instructions.push(StoryInstruction::Choice(index));
         return self.process_choice(&mut history.story, &history.nodes, index);
+    }
+
+    pub fn interact(&mut self, interaction: String) -> StoryNode {
+        if interaction == self.current_interaction {
+            self.instructions
+                .push(StoryInstruction::Interaction(interaction));
+            return self.get_node();
+        } else {
+            panic!(
+                "STORY | Tried to interact with {}, but current interaction is {}",
+                interaction, self.current_interaction
+            )
+        }
     }
 
     /// Takes a node instruction and progresses the story, returning the last node
@@ -155,6 +167,13 @@ impl StoryState {
                 let choices = story.get_current_choices();
                 assert!(!choices.is_empty());
                 self.process_choice(story, nodes, choice)
+            }
+            StoryInstruction::Interaction(ref interaction) => {
+                let line = get_next_line(story);
+                assert!(line.starts_with(INTERACTION));
+                let interaction_id = line.strip_prefix(INTERACTION).unwrap();
+                assert!(interaction_id == interaction);
+                self.process_interaction(&line)
             }
         }
     }
@@ -231,6 +250,12 @@ impl StoryState {
         } else {
             panic!("The last node is not a question! {:?}", nodes.last());
         }
+    }
+
+    fn process_interaction(&mut self, line: &str) -> StoryNode {
+        let interaction_id = line.strip_prefix(INTERACTION).unwrap();
+        self.current_interaction = interaction_id.to_owned();
+        return StoryNode::Interaction(interaction_id.to_owned());
     }
 }
 
