@@ -2,16 +2,19 @@ import { Scene } from "phaser";
 
 export class Boot extends Scene {
   constructor() {
-    super({ key: "Boot" })
+    super({ key: "Boot" });
   }
 
   preload() {
-    this.load.image('island', 'images/island.png')
+    this.load.image("island", "images/island.png");
+    this.load.image("mailbox", "images/mailbox.png");
+    this.load.image("spacebar", "images/spacebar.png");
+    this.load.image("notification", "images/notification.png");
 
-    this.load.atlas('player', 'atlas/character.png', 'atlas/character.json')
+    this.load.atlas("player", "atlas/character.png", "atlas/character.json");
   }
 
   create() {
-    this.scene.start('Main')
+    this.scene.start("Main");
   }
 }

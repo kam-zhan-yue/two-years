@@ -20,15 +20,13 @@ interface Question {
   choices: StoryChoice[];
 }
 
-interface Response {
-  line: DialogueLine;
-}
+type Interaction = "" | "GAME_START" | "COFFEE";
 
 type StoryState =
   | { type: "start" }
   | { type: "dialogue"; body: Dialogue }
   | { type: "question"; body: Question }
-  | { type: "response"; body: Response }
+  | { type: "interaction"; body: Interaction }
   | { type: "end" };
 
 const DialogueLineSchema = z.object({
@@ -45,10 +43,11 @@ const DialogueSchema = z.object({
   lines: z.array(DialogueLineSchema),
 });
 
-const ResponseSchema = z.object({
-  line: DialogueLineSchema,
-});
-
+const InteractionSchema = z.union([
+  z.literal(""),
+  z.literal("GAME_START"),
+  z.literal("COFFEE"),
+]);
 const QuestionSchema = z.object({
   question: DialogueLineSchema,
   answerer: z.string(),
@@ -65,8 +64,8 @@ const StoryStateSchema = z.discriminatedUnion("type", [
     body: QuestionSchema,
   }),
   z.object({
-    type: z.literal("response"),
-    body: ResponseSchema,
+    type: z.literal("interaction"),
+    body: InteractionSchema,
   }),
   z.object({
     type: z.literal("end"),
@@ -83,7 +82,7 @@ const defaultStoryState: StoryState = {
 export {
   type StoryState,
   type Question,
-  type Response,
+  type Interaction,
   type Dialogue,
   type DialogueLine,
   type StoryChoice,

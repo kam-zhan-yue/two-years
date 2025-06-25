@@ -26,6 +26,7 @@ const Story = () => {
   const setStoryState = useGameStore((state) => state.setStoryState);
   const storyState = useGameStore((store) => store.storyState);
   const playerId = useGameStore((store) => store.playerId);
+  const game = useGameStore((store) => store.game);
 
   // Story State Stuff
   const [lineIndex, setLineIndex] = useState(0);
@@ -72,6 +73,8 @@ const Story = () => {
         }
       } else if (storyState.type === "question") {
         typewriterRef.current.setText(storyState.body.question.line);
+      } else if (storyState.type === "interaction") {
+        game?.setInteraction(storyState.body);
       } else if (storyState.type === "end") {
         typewriterRef.current.setText("Story has ended.");
       }
@@ -82,6 +85,7 @@ const Story = () => {
     setStoryState,
     setLineIndex,
     typewriterRef,
+    game,
   ]);
 
   const onTypewriterComplete = useCallback(() => {}, []);

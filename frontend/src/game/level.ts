@@ -9,14 +9,18 @@ import type { GameState } from "./types/game-state";
 import { constants } from "@/helpers/constants";
 import { useGameStore } from "@/store";
 import type { PlayerState } from "./types/player-state";
+import type { Interaction } from "./types/story-state";
+import { Start } from "./classes/setups/start";
+import { InteractionHandler } from "./handlers/interaction-handler";
 
 export class Level extends Scene {
   public state: "game" | "ui";
+  public player?: Player;
   private id: string;
   private playerOneNpc?: Npc;
   private playerTwoNpc?: Npc;
-  private player?: Player;
   private inputHandler?: InputHandler;
+  private interactionHandler?: InteractionHandler;
 
   constructor() {
     super({ key: "Main" });
@@ -26,6 +30,7 @@ export class Level extends Scene {
 
   setupGame() {
     this.inputHandler = new InputHandler(this);
+    this.interactionHandler = new InteractionHandler(this);
     const island = new GameImage(
       this,
       new Phaser.Math.Vector2(0, 0),
@@ -61,6 +66,16 @@ export class Level extends Scene {
     this.setupGame();
   }
 
+  setInteraction(interaction: Interaction) {
+    if (!this.interactionHandler) return;
+    console.info(`Setting interaction to ${interaction}`);
+    this.interactionHandler.reset();
+    if (interaction === "GAME_START") {
+      new Start(this, interaction, this.interactionHandler);
+    } else if (interaction === "COFFEE") {
+    }
+  }
+
   update(_time: number, _delta: number) {
     const state = useGameStore.getState().gameState;
     this.updateState(state);
@@ -68,6 +83,7 @@ export class Level extends Scene {
     if (this.player) {
       switch (this.state) {
         case "game":
+          this.interactionHandler?.update();
           this.player.update();
           break;
         case "ui":
