@@ -19,8 +19,8 @@ pub enum Player {
 impl Player {
     pub fn from_ink(s: &str) -> Self {
         match s {
-            "P1" => Player::One,
-            "P2" => Player::Two,
+            "Alex" => Player::One,
+            "Wato" => Player::Two,
             _ => panic!("Unknown speaker: {:?}", s),
         }
     }
