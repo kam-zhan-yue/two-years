@@ -3,6 +3,7 @@ INTERACTION__GAME_START
 VAR food_1 = ""
 VAR food_2 = ""
 VAR fuckups = 0
+VAR correct = 0
 
 -> A1_D1
 
@@ -77,17 +78,17 @@ NODE__END
 ===A1_Q2===
 QUESTION__START #Wato
 Wato: Let's start with something light. There's not much to choose from
-+ サラダ
++ [サラダ]
     ~food_1 = "salad"
     Wato: Funny, I haven't been craving Misdo recently
     Wato: Also, best to be healthy. We've been snacking too much...
     All: Wato shudders at the memory of over-snacking late at night, only to suffer the consequences in the following morning.
     -> A1_Q2_RESUME
-+ バムクーヘン
++ [バムクーヘン]
     ~food_1 = "baumkuchen"
     Wato: Oooo, I've missed these. Such a comfort food.
     -> A1_Q2_RESUME
-+ ポン・デ・リング
++ [ポン・デ・リング]
     ~food_1 = "pon de ring"
     Wato: Smells like a blast from the past.
     Wato: Wait, the past? It's only been two years since we starting eating these though?
@@ -105,20 +106,20 @@ NODE__END
 ===A1_Q3===
 QUESTION__START #Wato
 Wato: Now for the main course.
-+ 手作り親子丼
++ [手作り親子丼]
     ~food_2 = "oyakodon"
     Wato: Aw, how sweet. I always love eating this.
     Wato: ...
     Wato: (It's all cold now though)
     Wato: I'm sure it'll work out fine!
     -> A1_Q3_RESUME
-+ ミートソースパスタ
++ [ミートソースパスタ]
     ~food_2 = "pasta"
     Wato: I'VE BEEN CRAVING THIS ALL DAY.
     Wato: Into my stomach you will go.
     -> A1_Q3_RESUME
     
-+ ポン・デ・リング
++ [ポン・デ・リング]
     ~food_2 = "pon de ring"
     { food_1 == "pon de ring":
         Wato: ... a second one can't hurt right...?
@@ -248,6 +249,193 @@ NODE__END
 -> A2_Q1
 
 ===A2_Q1===
+QUESTION__START #Wato
+Alex: Let's start easy... What's the name of the beach we visited twice when in Melbourne together?
++ Brighton Beach
+    Alex: BZZT, INCORRECT!
+    Alex: We've never been to this beach together. Brighton has the colourful beach boxes.
+    Alex: I can't believe you forgot the easiest question...
+    Wato: I  have no excuse for that.
+    -> A2_Q1_RESUME
++ Frankston Beach
+    Alex: BZZT, INCORRECT!
+    Alex: We've been here once, but with Daniel, Eden, and Ben and only once.
+    Wato: Ahh, it was a misclick, I swear!
+    Alex: Sureeee.
+    -> A2_Q1_RESUME
++ St. Kilda Beach
+    ~correct += 1
+    Alex: Correct! That was a freebie. I know you love that beach.
+    Wato: I do, actually
+    -> A1_Q3_RESUME
+
+===A2_Q1_RESUME===
+Alex: OK NEXT QUESTION!
+NODE__END
+-> A2_Q2
+
+===A2_Q2===
+QUESTION__START #Wato
+Alex: What was my first birthday gift to you?
++ Earrings
+    ~correct += 1
+    Alex: Correct! They're not being used anymore though...
+    Wato: I still love them! They're just a bit hard to wear...
+    Alex: Yeah, that's my fault honestly.
+    -> A2_Q2_RESUME
++ A Shark Plushie
+    Alex: BZZT, INCORRECT! That was your first birthday gift to me! You dummy.
+    Wato: That was definitely a misclick.
+    Alex: Suuureeee
+    -> A2_Q2_RESUME
++ A Bracelet
+    Alex: BZZT, INCORRECT! I've never given you a bracelet before.
+    Wato: Damn, why did I select that?
+    Alex: I have no idea.
+    -> A2_Q2_RESUME
+    
+===A2_Q2_RESUME===
+Alex: Let's move onto the next question! It's gonna get harder from now on...
+NODE__END
+-> A2_Q3
+
+===A2_Q3===
+QUESTION__START #Wato
+Alex: This is a bit hard now. What date did we first meet in that astronomy class?
++ 10th April 2023
+    Alex: Hahahaha STOOOPIIIIIIDDDD! That's incorrect! How could you not know that 😂
+    -> A2_Q3_RESUME
++ 13th April 2023
+    ~correct += 1
+    Alex: Correct! I'm... surprised you got that.
+    Wato: How dare you doubt me.
+    Alex: That's my fault.
+    -> A2_Q3_RESUME
++ 15th April 2023
+    Alex: Hahahaha STOOOPIIIIIIDDDD! That's incorrect! How could you not know that 😂
+    -> A2_Q3_RESUME
+
+===A2_Q3_RESUME===
+Alex: Ok well, that's on me for making it too hard. My bad.
+Alex: Let's take a trip down memory lane.
+Alex: This is the final question. It's gonna be the hardest one so far. Make sure to use all of your brain power.
+Wato: Suuuuuureeee
+NODE__END
+
+-> A2_Q4
+
+===A2_Q4===
+QUESTION__START #Wato
+Alex: Where was the location of our fourth date / time we spent together?
++ 鴨川
+    ~correct += 1
+    Alex: Correct! That was where we had the 肉まん you brought back from 大阪. Technically isn't a date, but it is a significant moment we spent together.
+    Wato: I remember that! The 肉まん were so stale because I left them in my room for so long...
+    Alex: Yeah...
+    Alex: I still enjoyed them though!
+    Wato: 🥰
+    -> A2_Q4_RESUME
++ みずき寮
+    Alex: BZZT, INCORRECT! We spent a lot of time in みずき寮 but the time we spent (failing) to bake a cafe was in our later dates.
+    Wato: That's not fair! How am I expected to remember that?
+    Alex: You're meant to be the expert here, I just made the game.
+    -> A2_Q4_RESUME
++ 祇園祭り
+    Alex: BZZT, INCORRECT! This happened in July! Much later in the timeline.
+    Wato: Argh! I should have known that.
+    -> A2_Q4_RESUME
+
+===A2_Q4_RESUME===
+Alex: Ok, bonus round! Answer this for a chance at another point!
+NODE__END
+
+-> A2_Q5
+
+===A2_Q5===
+QUESTION__START #Wato
+Alex: What is my second favourite ice cream flavour?
++ Mint Chocolate Chip
+    Alex: BZZT, INCORRECT! No second place for the GOAT
+    Wato: I should've seen that coming...
+    Alex: Yeah, you should have.
+    -> A2_Q5_RESUME
++ Matcha
+    Alex: BZZT, INCORRECT! I love matcha ice cream sometimes, but it's not one of the all-time greats.
+    Wato: Even though you went to Uji so much...
+    -> A2_Q5_RESUME
++ Rum & Raisin
+    ~correct += 1
+    Alex: Correct! I was technically intoxicated during a school trip.
+    Wato: Nerd.
+    Alex: That's me.
+    -> A2_Q5_RESUME
+
+
+===A2_Q5_RESUME===
+Alex: This is the final question. It's gonna be the hardest one so far. Make sure to use all of your brain power.
+Wato: I was born ready for this.
+NODE__END
+-> A2_Q6
+
+===A2_Q6===
+QUESTION__START #Wato
+Alex: How many full size cakes have we eaten together so far?
++ 4
+    Alex: BZZT, Incorrect!
+    -> A2_Q6_RESUME
++ 5
+    ~correct += 1
+    Alex: Correct!
+    -> A2_Q6_RESUME
++ 6
+    Alex: BZZT, Incorrect!
+    -> A2_Q6_RESUME
+
+===A2_Q6_RESUME===
+Alex: We had our first one on your birthday in 2023.
+Alex: Our second one that you made for me in 2023.
+Alex: Our third one on Christmas of 2023.
+Alex: Our fourth one before I left Gojo in 2024.
+Alex: Our fifth one when I came back in July 2024, but I honestly can't remember why.
+Wato: That was really hard. Did we really eat that many cakes?
+Alex: Actually, I'm surprised we haven't eaten any in 2025.
+Wato: For now.
+Alex: Nice.
+Alex: Anways, that concludes the trivia! You scored {correct} out of 6!
+{ correct:
+    - 0:
+        Alex: I can't belive you got 0 points... I literally have no words.
+    - 1: 
+        Alex: A pitiful score. I expected more from you.
+    - 2:
+        Alex: Really? After all that talk about the birthdays.
+    - 3:
+        Alex: Eh, a passing mark, not amazing, not bad.
+    - 4:
+        Alex: Not a bad score at all, there were some curveballs in there, I'll admit.
+    - 5:
+        Alex: I actually can't believe you got that many right. I spent hours checking some of these.
+    - 6:
+        Alex: A PERFECT SCORE!!! My baby is a genius!!!
+}
+Wato: Alright enough of that, let's finish our food.
+All: The couple scarf down their meal like their live depended on it.
+Alex: Could you help return these to the basket?
+NODE__END
+
+-> A3_D1
+
+
+===A3_D1===
+INTERACTION__BASKET_RETURN
+
+Alex: Ok now come back here! I have some
+
+
+
+
+
+
 
 
 -> DONE
