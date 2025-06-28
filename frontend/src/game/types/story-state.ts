@@ -20,7 +20,7 @@ interface Question {
   choices: StoryChoice[];
 }
 
-type Interaction = "" | "GAME_START" | "COFFEE";
+type Interaction = "" | "GAME_START" | "COFFEE" | "PICNIC_CONTINUE";
 
 type StoryState =
   | { type: "start" }

@@ -13,6 +13,7 @@ import type { Interaction } from "./types/story-state";
 import { Start } from "./classes/setups/start";
 import { InteractionHandler } from "./handlers/interaction-handler";
 import { InteractionMessageSchema, MessageType } from "./types/messages";
+import { PicnicContinue } from "./classes/setups/picnic-continue";
 
 export class Level extends Scene {
   public state: "game" | "ui";
@@ -80,6 +81,8 @@ export class Level extends Scene {
     if (interaction === "GAME_START") {
       new Start(this, interaction, this.interactionHandler);
     } else if (interaction === "COFFEE") {
+    } else if (interaction === "PICNIC_CONTINUE") {
+      new PicnicContinue(this, interaction, this.interactionHandler);
     }
   }
 

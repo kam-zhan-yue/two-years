@@ -21,6 +21,7 @@ impl Player {
         match s {
             "Alex" => Player::One,
             "Wato" => Player::Two,
+            "All" => Player::None,
             _ => panic!("Unknown speaker: {:?}", s),
         }
     }
