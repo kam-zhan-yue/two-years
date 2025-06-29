@@ -31,7 +31,7 @@ const PlayerSchema = RawPlayerSchema.transform((raw) => {
 const defaultPlayerState: PlayerState = {
   id: "0",
   position: new Math.Vector2(0, 0),
-  animation: "player-idle-down",
+  animation: "alex-idle-down",
 };
 
 export { type PlayerState, RawPlayerSchema, PlayerSchema, defaultPlayerState };
