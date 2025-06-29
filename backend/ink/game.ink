@@ -5,6 +5,25 @@ VAR food_2 = ""
 VAR fuckups = 0
 VAR correct = 0
 
+-> DEBUG
+
+===DEBUG==
+QUESTION__START #Alex
+Alex: Pick an entry point
++ Introduction
+    NODE__END
+    -> START
++ Picnic
+    NODE__END
+    -> A1_D2
++ Trivia
+    NODE__END
+    -> A2_D1
++ Gift Giving
+    NODE__END
+    -> A3_D1
+
+===START===
 -> A1_D1
 
 // INTRODUCTION
@@ -16,6 +35,7 @@ Wato: What?
 Alex: Isn't Kamogawa lovely at this time of the year?
 Wato: It's absolutely beautiful. It almost makes me want to live in Japan if it weren't for everything else.
 Alex: Always feels like our little backyard, even though there's always people around.
+Alex: Anyway's let's start our picnic.
 Wato: Did you bring the food?
 NODE__END
 -> A1_Q1
@@ -180,7 +200,7 @@ All: Wato dumps the food on the mat.
 
 Alex: Ok, let's see what's next.
 
-ALL: Wato brings out the second choice.
+All: Wato brings out the second choice.
 
 {
     - food_1 == "oyakodon":

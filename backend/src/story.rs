@@ -249,11 +249,17 @@ impl StoryState {
     ) -> StoryNode {
         if let Some(StoryNode::Question { answerer, .. }) = nodes.last() {
             story.choose_choice_index(index as usize).unwrap();
-            // Get the response from the question
+            // Get the response from the question, if it cannot be split by the delimiter
             let line = get_next_line(story);
-            let response = DialogueLine {
-                speaker: *answerer,
-                line,
+            // Make a response if it can be split
+            let mut split = line.splitn(2, ':');
+            let response = if let (Some(_), Some(_)) = (split.next(), split.next()) {
+                process_line(&line)
+            } else {
+                DialogueLine {
+                    speaker: *answerer,
+                    line,
+                }
             };
             // Continue with the story and return the dialogue
             let mut node = self.process_dialogue(story);
