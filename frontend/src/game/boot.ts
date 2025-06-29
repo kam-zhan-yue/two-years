@@ -12,6 +12,8 @@ export class Boot extends Scene {
     this.load.image("notification", "images/notification.png");
 
     this.load.atlas("player", "atlas/character.png", "atlas/character.json");
+    this.load.aseprite("alex", "atlas/alex.png", "atlas/alex.json");
+    this.load.aseprite("wato", "atlas/wato.png", "atlas/wato.json");
   }
 
   create() {

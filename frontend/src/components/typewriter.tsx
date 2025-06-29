@@ -56,7 +56,6 @@ const Typewriter = forwardRef<TypewriterHandle, TypewriterProps>(
     }));
 
     const complete = useCallback(() => {
-      console.info("complete");
       setState(TypewriterState.Finished);
       onComplete();
     }, [setState, onComplete]);

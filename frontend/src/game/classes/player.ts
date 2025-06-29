@@ -4,7 +4,11 @@ import { constants } from "@/helpers/constants";
 import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import { MessageType, PlayerMessageSchema } from "../types/messages";
 import { Math as PhaserMath } from "phaser";
-import type { BaseAnimation, TopDownAnimation } from "./animation";
+import type {
+  BaseAnimation,
+  PlayerAnimation,
+  TopDownAnimation,
+} from "./animation";
 
 export default class Player extends Character {
   private inputHandler: InputHandler;
@@ -13,7 +17,7 @@ export default class Player extends Character {
   constructor(
     physics: Phaser.Physics.Arcade.ArcadePhysics,
     position: Phaser.Math.Vector2,
-    textureKey: string,
+    textureKey: PlayerAnimation,
     inputHandler: InputHandler,
     send: SendJsonMessage,
   ) {
@@ -41,7 +45,7 @@ export default class Player extends Character {
       y += speed;
     }
 
-    let baseAnimation: BaseAnimation = "player-idle";
+    let baseAnimation: BaseAnimation = "idle";
     let topDownAnimation: TopDownAnimation = "down";
     if (y < 0) topDownAnimation = "up";
     else if (y > 0) topDownAnimation = "down";
@@ -50,12 +54,12 @@ export default class Player extends Character {
     //Handle animations
     if (x === 0 && y === 0) {
       this.body.setVelocity(0, 0);
-      this.play("player-idle", topDownAnimation);
+      this.play("idle", topDownAnimation);
     } else {
       const direction = new PhaserMath.Vector2(x, y).normalize();
       const velocity = direction.scale(constants.speed);
       this.body.setVelocity(velocity.x, velocity.y);
-      baseAnimation = "player-run";
+      baseAnimation = "run";
     }
     this.play(baseAnimation, topDownAnimation);
     this.sendMessage();

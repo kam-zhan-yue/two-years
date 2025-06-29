@@ -3,7 +3,6 @@ import GameImage from "./classes/game-image";
 import Player from "./classes/player";
 import Npc from "./classes/npc";
 import InputHandler from "./handlers/input-hander";
-import createCharacterAnims from "./handlers/animation-handler";
 import type { SendJsonMessage } from "react-use-websocket/dist/lib/types";
 import type { GameState } from "./types/game-state";
 import { constants } from "@/helpers/constants";
@@ -14,6 +13,7 @@ import { Start } from "./classes/setups/start";
 import { InteractionHandler } from "./handlers/interaction-handler";
 import { InteractionMessageSchema, MessageType } from "./types/messages";
 import { PicnicContinue } from "./classes/setups/picnic-continue";
+import createCharacterAnims from "./handlers/animation-handler";
 
 export class Level extends Scene {
   public state: "game" | "ui";
@@ -32,6 +32,8 @@ export class Level extends Scene {
   }
 
   setupGame() {
+    this.anims.createFromAseprite("alex");
+    this.anims.createFromAseprite("wato");
     this.inputHandler = new InputHandler(this);
     this.interactionHandler = new InteractionHandler(this);
     const island = new GameImage(
@@ -46,18 +48,17 @@ export class Level extends Scene {
   }
 
   initDialogue(sendDialogue: SendJsonMessage) {
-    console.info("Inited Dialogue");
     this.sendDialogue = sendDialogue;
   }
 
   initPlayer(id: string, send: SendJsonMessage) {
+    const sprite = id === constants.playerOne ? "alex" : "wato";
     this.id = id;
     if (!this.player && this.inputHandler) {
-      console.log("Creating a new Player");
       this.player = new Player(
         this.physics,
         new Math.Vector2(0, 0),
-        "player",
+        sprite,
         this.inputHandler,
         send,
       );
@@ -76,7 +77,6 @@ export class Level extends Scene {
 
   setInteraction(interaction: Interaction) {
     if (!this.interactionHandler) return;
-    console.info(`Setting interaction to ${interaction}`);
     this.interactionHandler.reset();
     if (interaction === "GAME_START") {
       new Start(this, interaction, this.interactionHandler);
@@ -164,18 +164,17 @@ export class Level extends Scene {
       id === constants.playerOne ? this.playerOneNpc : this.playerTwoNpc;
     // Else, simulate the npc
     if (!npc) {
-      console.log(`Creating an NPC for ${id}`);
       if (id === constants.playerOne) {
         this.playerOneNpc = new Npc(
           this.physics,
           new Math.Vector2(0, 0),
-          "player",
+          "alex",
         );
       } else if (id === constants.playerTwo) {
         this.playerTwoNpc = new Npc(
           this.physics,
           new Math.Vector2(0, 0),
-          "player",
+          "wato",
         );
       }
     }

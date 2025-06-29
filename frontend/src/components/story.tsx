@@ -97,7 +97,6 @@ const Story = () => {
   const onTypewriterNext = useCallback(() => {
     if (storyState.type === "dialogue") {
       if (lineIndex < storyState.body.lines.length - 1) {
-        console.info(`Setting line index to ${lineIndex + 1}`);
         if (typewriterRef.current) {
           typewriterRef.current.setText(
             storyState.body.lines[lineIndex + 1].line,
@@ -107,7 +106,6 @@ const Story = () => {
         setLineIndex(lineIndex + 1);
       } else {
         // go to the next dialogue!
-        console.info("go to next!");
         setWaiting(true);
         sendDialogue();
       }
@@ -122,14 +120,12 @@ const Story = () => {
   }, [storyState, lineIndex, setLineIndex, typewriterRef]);
 
   const handleClick = useCallback(() => {
-    console.info("clicking");
     if (typewriterRef.current) {
       typewriterRef.current.handleClick();
     }
   }, [typewriterRef]);
 
   const handleSelectChoice = useCallback((choice: number) => {
-    console.info(`choosing ${choice}`);
     sendChoice(choice);
   }, []);
 

@@ -1,6 +1,7 @@
 import type {
   BaseAnimation,
   CharacterAnimation,
+  PlayerAnimation,
   TopDownAnimation,
 } from "./animation";
 
@@ -8,15 +9,17 @@ export default class Character {
   public physics: Phaser.Physics.Arcade.ArcadePhysics;
   public body: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   public animation: CharacterAnimation;
+  private textureKey: PlayerAnimation;
 
   constructor(
     physics: Phaser.Physics.Arcade.ArcadePhysics,
     position: Phaser.Math.Vector2,
-    textureKey: string,
+    textureKey: PlayerAnimation,
   ) {
     this.physics = physics;
+    this.textureKey = textureKey;
     this.body = this.physics.add.sprite(position.x, position.y, textureKey);
-    this.animation = "player-idle-down";
+    this.animation = `${textureKey}-${"idle" as BaseAnimation}-${"down" as TopDownAnimation}`;
   }
 
   setPosition(position: Phaser.Math.Vector2) {
@@ -33,7 +36,7 @@ export default class Character {
   }
 
   play(base: BaseAnimation, animation: TopDownAnimation) {
-    this.animation = `${base}-${animation}`;
+    this.animation = `${this.textureKey}-${base}-${animation}`;
     this.body.anims.play(this.animation, true);
   }
 

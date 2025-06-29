@@ -8,14 +8,9 @@ class InteractionHandler {
   constructor(level: Level) {
     this.level = level;
     this.interactions = [];
-
-    console.info(`Interactions is ${this.interactions}.`);
   }
 
   add(interaction: InteractionObject) {
-    console.info(
-      `Interactions is ${this.interactions}. Interaction Object is ${interaction}`,
-    );
     this.interactions.push(interaction);
   }
 
