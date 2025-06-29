@@ -1,3 +1,4 @@
+import { constants } from "@/helpers/constants";
 import type {
   BaseAnimation,
   CharacterAnimation,
@@ -19,6 +20,7 @@ export default class Character {
     this.physics = physics;
     this.textureKey = textureKey;
     this.body = this.physics.add.sprite(position.x, position.y, textureKey);
+    this.body.body.setSize(constants.playerWidth, constants.playerHeight);
     this.animation = `${textureKey}-${"idle" as BaseAnimation}-${"down" as TopDownAnimation}`;
   }
 

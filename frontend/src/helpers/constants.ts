@@ -6,4 +6,6 @@ export const constants = {
   playerTwo: "2",
   islandWidth: 480,
   islandHeight: 256,
+  playerWidth: 16,
+  playerHeight: 28,
 };
