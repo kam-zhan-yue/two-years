@@ -4,4 +4,6 @@ export const constants = {
   emptyId: "0",
   playerOne: "1",
   playerTwo: "2",
+  islandWidth: 480,
+  islandHeight: 256,
 };

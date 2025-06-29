@@ -14,6 +14,7 @@ import { InteractionHandler } from "./handlers/interaction-handler";
 import { InteractionMessageSchema, MessageType } from "./types/messages";
 import { PicnicContinue } from "./classes/setups/picnic-continue";
 import createCharacterAnims from "./handlers/animation-handler";
+import ObstacleHandler from "./handlers/obstacle.handler";
 
 export class Level extends Scene {
   public state: "game" | "ui";
@@ -23,6 +24,7 @@ export class Level extends Scene {
   private playerTwoNpc?: Npc;
   private inputHandler?: InputHandler;
   private interactionHandler?: InteractionHandler;
+  private obstacleHandler?: ObstacleHandler;
   private sendDialogue?: SendJsonMessage;
 
   constructor() {
@@ -36,14 +38,18 @@ export class Level extends Scene {
     this.anims.createFromAseprite("wato");
     this.inputHandler = new InputHandler(this);
     this.interactionHandler = new InteractionHandler(this);
+    this.obstacleHandler = new ObstacleHandler(this);
     const island = new GameImage(
       this,
       new Phaser.Math.Vector2(0, 0),
-      "island",
-      -100,
+      "level",
+      -10000,
     );
-    this.cameras.main.centerOn(island.image.x, island.image.y);
-    this.cameras.main.setZoom(3);
+    this.cameras.main.startFollow(island.image);
+    this.cameras.main.setZoom(4);
+    const width = constants.islandWidth;
+    const height = constants.islandHeight;
+    this.cameras.main.setBounds(-width / 2, -height / 2, width, height, true);
     createCharacterAnims(this.anims);
   }
 
@@ -62,6 +68,7 @@ export class Level extends Scene {
         this.inputHandler,
         send,
       );
+      this.obstacleHandler?.init(this.player);
       this.cameras.main.startFollow(this.player.body, false);
     }
   }
