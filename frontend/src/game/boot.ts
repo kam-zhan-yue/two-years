@@ -9,6 +9,8 @@ export class Boot extends Scene {
     this.load.image("island", "images/island.png");
     this.load.image("level", "images/level.png");
     this.load.image("mailbox", "images/mailbox.png");
+    this.load.image("picnic-mat", "images/picnic-mat.png");
+    this.load.image("picnic-basket", "images/picnic-basket.png");
     this.load.image("spacebar", "images/spacebar.png");
     this.load.image("notification", "images/notification.png");
 

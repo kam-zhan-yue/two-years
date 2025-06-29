@@ -36,7 +36,7 @@ Alex: Isn't Kamogawa lovely at this time of the year?
 Wato: It's absolutely beautiful. It almost makes me want to live in Japan if it weren't for everything else.
 Alex: Always feels like our little backyard, even though there's always people around.
 Alex: Anyway's let's start our picnic.
-Wato: Did you bring the food?
+Wato:  Did you bring the food?
 NODE__END
 -> A1_Q1
 
@@ -46,16 +46,16 @@ Alex: No... I thought you had it.
 + WHAT! Are you kidding me?
     Alex: GOTCHA! The picnic basket and everything was already setup! You must seem like an absolute fool.
     Wato: Screw you.
-    Alex: Much obligued.
+    Alex: Much obliged.
     -> A1_Q1_RESUME
 + Ah, it's okay, don't worry about it
     Alex: Such a lukewarm response.
-    Alex: Anyways, I've already prepared it, it's just behind us.
+    Alex: Anyways, I've already prepared it, it's just right there.
     Wato: That's soooo sweeeeet (I already saw it though)
     -> A1_Q1_RESUME
 + I'll eat you.
     Alex: Please do.
-    Alex: Hahaha, anyways I've already prepared it, look behind you.
+    Alex: Hahaha, anyways I've already prepared it, it's just right there.
     Wato: That's soooo sweeeeet (I already saw it though)
     -> A1_Q1_RESUME
 

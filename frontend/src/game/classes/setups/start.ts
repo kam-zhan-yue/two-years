@@ -12,6 +12,22 @@ class Start extends InteractionSetup {
         "mailbox",
         this.interaction,
       ),
+      new InteractionObject(
+        "picnic-mat",
+        this.scene,
+        new Phaser.Math.Vector2(0, 10),
+        new Phaser.Math.Vector2(50, 50),
+        "picnic-mat",
+        undefined,
+        -500,
+      ),
+      new InteractionObject(
+        "picnic-basket",
+        this.scene,
+        new Phaser.Math.Vector2(0, 10),
+        new Phaser.Math.Vector2(50, 50),
+        "picnic-basket",
+      ),
     ];
   }
 }
