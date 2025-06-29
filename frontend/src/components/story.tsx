@@ -157,13 +157,18 @@ const Story = () => {
     [dialogueSend],
   );
 
+  const canShow =
+    storyState.type === "dialogue" || storyState.type === "question";
+
   return (
     <div className="fixed w-full h-full" onClick={handleClick}>
       {choices.length > 0 && (
         <Choices choices={choices} onSelect={handleSelectChoice} />
       )}
       {waiting && <Waiting />}
-      <div className="fixed bottom-5 left-5 right-5 h-40 overflow-y-auto bg-white">
+      <div
+        className={`${canShow ? "block" : "hidden"} fixed bottom-5 left-5 right-5 h-40 overflow-y-auto bg-white`}
+      >
         <Typewriter
           ref={typewriterRef}
           delay={15}
