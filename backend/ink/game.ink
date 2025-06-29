@@ -401,7 +401,8 @@ Wato: That was really hard. Did we really eat that many cakes?
 Alex: Actually, I'm surprised we haven't eaten any in 2025.
 Wato: For now.
 Alex: Nice.
-Alex: Anways, that concludes the trivia! You scored {correct} out of 6!
+Alex: Anways, that concludes the trivia! You scored...
+Alex: {correct} out of 6!
 { correct:
     - 0:
         Alex: I can't belive you got 0 points... I literally have no words.
@@ -429,13 +430,102 @@ NODE__END
 ===A3_D1===
 INTERACTION__BASKET_RETURN
 
-Alex: Ok now come back here! I have some
+NODE__START
+Alex: Ok now come back here! I have some thing to show you.
+NODE__END
+
+INTERACTION__GIFT_START
+
+NODE__START
+Alex: Close your eyes... 
+Wato: Ok...
+NODE__END
+-> A3_Q1
+
+===A3_Q1===
+QUESTION__START #Alex
+Alex: (where did I put that gift?)
++ [A Giant Water Bottle]
+    Alex: Here's your gift! #action:bottle
+    Wato: WHY IS IT SO BIG.
+    Wato: Why did you get me another one?
+    Alex: Because you need to stay hydrated.
+    Wato: THAT WON'T FIT IN MY BAG!
+    Alex: hahahaha, i know right
+    Wato: hahahahaha
+    Wato: I love it, thank you
+    Alex: I'm happy you enjoy it
+    -> A3_Q1_RESUME
++ [A Shark Plushie]
+    Alex: Here's your gift! #action:shark
+    Wato: Sharkie?!
+    Alex: Actually, it's his sister.
+    Wato: Aw, that's adorable.
+    Alex: Now we can have two sharkies when we sleep together, instead of fighting for just one.
+    Wato: I really need that.
+    Wato: Thank you baby, I love it.
+    -> A3_Q1_RESUME
+
+===A3_Q1_RESUME===
+Wato: I love everything you get me, really
+Alex: That means the world to me.
+Wato: I actually have something for you too!
+Alex: Yayyyy!
+NODE__END
+
+->A3_Q2
 
 
+===A3_Q2===
+QUESTION__START #Wato
+Wato: Ok, my turn. I've been keeping this in my pocket all day.
++ [Mint Chocolate Ice Cream Cone]
+    Wato: Tada!
+    Alex: I LOVE IT
+    Wato: I knew you would. I'm surprised it's not melted by now.
+    Alex: Temperature doesn't exist in this world.
+    Wato: What?
+    Alex: What?
+    Wato: Anyways, let's eat it together.
+    Alex: Wait, really?!
+    Wato: Absolutely not, I'm not an animal.
+    Alex: I fell straight for that.
+    -> A3_Q2_RESUME
++ [Handmade Bracelet]
+    Wato: Tada!
+    Alex: OMG
+    Wato: I know you lost the other one (maybe), so I made another.
+    Alex: I'm so sorry for misplacing the other one even though I promised not to lose it...
+    Alex: But this is all I could ever ask for. This is the absolute best gift.
+    Alex: Thank you so much baby.
+    Wato: There's two cats on the bracelet this time.
+    Alex: MY BABIESSS!
+    Alex: I love you.
+    Wato: I love you too.
+    -> A3_Q2_RESUME
 
+===A3_Q2_RESUME===
+Alex: Thank you for the gift, I also love you no matter what you get me.
+Wato: Thank you amor.
+NODE__END
 
+NODE__START
+Alex: Now it's time for the final surprise.
+Wato: What do you mean?
 
-
-
-
+Alex: TADAAAA! #action:flowers
+Wato: AHHH THEY'RE BEAUTIFUL!!!
+Alex: Happy Two Year Anniversary!
+Wato: Thank you so much amor, I love these
+Alex: These past two years have been absolutely incredible and I can't imagine my life without you.
+Alex: I know I said I planned every part of this date, but honestly I've just prepared a few things and let everything flow together.
+Alex: I know that even if this date went poorly, or if whatever I gave you was mediocre, you would still have loved it as much as if it were perfect.
+Alex: And that's what I love the most about you. I love that we can do whatever and say whatever, but at the end of the day, it has meaning because we're doing it together.
+Alex: I love you with all of my heart and I can't wait to spend even more years with you.
+Alex: Te amo, mi amor
+Wato: Te amo. I love you so much.
+All: It's awkward to pretend to write for someone else, so here is a slot for Wato to say whatever when she actually plays the game.
+Alex: That was lovely baby, everything you said means the world to me.
+Wato: Let's just enjoy the rest of the day together yeah.
+Alex: That sounds amazing.
 -> DONE
