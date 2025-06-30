@@ -19,8 +19,10 @@ import { PicnicBasket } from "./classes/setups/picnic-basket";
 import { BasketReturn } from "./classes/setups/basket-return";
 import { GiftStart } from "./classes/setups/gift-start";
 
+const PLAYER_ONE_SPAWN = new Phaser.Math.Vector2(-20, -70);
+const PLAYER_TWO_SPAWN = new Phaser.Math.Vector2(20, -70);
+
 export class Level extends Scene {
-  public state: "game" | "ui";
   public player?: Player;
   private id: string;
   private playerOneNpc?: Npc;
@@ -32,7 +34,6 @@ export class Level extends Scene {
 
   constructor() {
     super({ key: "Main" });
-    this.state = "game";
     this.id = constants.emptyId;
   }
 
@@ -54,6 +55,7 @@ export class Level extends Scene {
     const height = constants.islandHeight;
     this.cameras.main.setBounds(-width / 2, -height / 2, width, height, true);
     createCharacterAnims(this.anims);
+    new GameStart(this, "", this.interactionHandler);
   }
 
   initDialogue(sendDialogue: SendJsonMessage) {
@@ -62,11 +64,13 @@ export class Level extends Scene {
 
   initPlayer(id: string, send: SendJsonMessage) {
     const sprite = id === constants.playerOne ? "alex" : "wato";
+    const spawnPoint =
+      id === constants.playerOne ? PLAYER_ONE_SPAWN : PLAYER_TWO_SPAWN;
     this.id = id;
     if (!this.player && this.inputHandler) {
       this.player = new Player(
         this.physics,
-        new Math.Vector2(0, 0),
+        spawnPoint,
         sprite,
         this.inputHandler,
         send,
@@ -104,16 +108,14 @@ export class Level extends Scene {
 
   update(_time: number, _delta: number) {
     const state = useGameStore.getState().gameState;
+    const storyState = useGameStore.getState().storyState;
     this.updateState(state);
 
     if (this.player) {
-      switch (this.state) {
-        case "game":
-          this.interactionHandler?.update();
-          this.player.update();
-          break;
-        case "ui":
-          break;
+      if (storyState.type === "dialogue" || storyState.type === "question") {
+      } else {
+        this.interactionHandler?.update();
+        this.player.update();
       }
     }
 
@@ -180,18 +182,12 @@ export class Level extends Scene {
       id === constants.playerOne ? this.playerOneNpc : this.playerTwoNpc;
     // Else, simulate the npc
     if (!npc) {
+      const spawnPoint =
+        id === constants.playerOne ? PLAYER_ONE_SPAWN : PLAYER_TWO_SPAWN;
       if (id === constants.playerOne) {
-        this.playerOneNpc = new Npc(
-          this.physics,
-          new Math.Vector2(0, 0),
-          "alex",
-        );
+        this.playerOneNpc = new Npc(this.physics, spawnPoint, "alex");
       } else if (id === constants.playerTwo) {
-        this.playerTwoNpc = new Npc(
-          this.physics,
-          new Math.Vector2(0, 0),
-          "wato",
-        );
+        this.playerTwoNpc = new Npc(this.physics, spawnPoint, "wato");
       }
     }
     if (id === constants.playerOne) {

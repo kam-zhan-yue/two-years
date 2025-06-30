@@ -39,7 +39,13 @@ export default class Character {
 
   play(base: BaseAnimation, animation: TopDownAnimation) {
     this.animation = `${this.textureKey}-${base}-${animation}`;
-    this.body.anims.play(this.animation, true);
+    this.body.anims.play(
+      {
+        key: this.animation,
+        repeat: -1,
+      },
+      true,
+    );
   }
 
   updateCharacter() {
