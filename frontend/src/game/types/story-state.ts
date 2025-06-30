@@ -20,7 +20,13 @@ interface Question {
   choices: StoryChoice[];
 }
 
-type Interaction = "" | "GAME_START" | "COFFEE" | "PICNIC_CONTINUE";
+type Interaction =
+  | ""
+  | "GAME_START"
+  | "PICNIC_BASKET"
+  | "PICNIC_CONTINUE"
+  | "BASKET_RETURN"
+  | "GIFT_START";
 
 type StoryState =
   | { type: "start" }
@@ -46,8 +52,12 @@ const DialogueSchema = z.object({
 const InteractionSchema = z.union([
   z.literal(""),
   z.literal("GAME_START"),
-  z.literal("COFFEE"),
+  z.literal("PICNIC_BASKET"),
+  z.literal("PICNIC_CONTINUE"),
+  z.literal("BASKET_RETURN"),
+  z.literal("GIFT_START"),
 ]);
+
 const QuestionSchema = z.object({
   question: DialogueLineSchema,
   answerer: z.string(),

@@ -9,12 +9,15 @@ import { constants } from "@/helpers/constants";
 import { useGameStore } from "@/store";
 import type { PlayerState } from "./types/player-state";
 import type { Interaction } from "./types/story-state";
-import { Start } from "./classes/setups/start";
+import { GameStart } from "./classes/setups/game-start";
 import { InteractionHandler } from "./handlers/interaction-handler";
 import { InteractionMessageSchema, MessageType } from "./types/messages";
 import { PicnicContinue } from "./classes/setups/picnic-continue";
 import createCharacterAnims from "./handlers/animation-handler";
 import ObstacleHandler from "./handlers/obstacle.handler";
+import { PicnicBasket } from "./classes/setups/picnic-basket";
+import { BasketReturn } from "./classes/setups/basket-return";
+import { GiftStart } from "./classes/setups/gift-start";
 
 export class Level extends Scene {
   public state: "game" | "ui";
@@ -85,11 +88,17 @@ export class Level extends Scene {
   setInteraction(interaction: Interaction) {
     if (!this.interactionHandler) return;
     this.interactionHandler.reset();
+    console.info(`Set Interaction ${interaction}`);
     if (interaction === "GAME_START") {
-      new Start(this, interaction, this.interactionHandler);
-    } else if (interaction === "COFFEE") {
+      new GameStart(this, interaction, this.interactionHandler);
+    } else if (interaction === "PICNIC_BASKET") {
+      new PicnicBasket(this, interaction, this.interactionHandler);
     } else if (interaction === "PICNIC_CONTINUE") {
       new PicnicContinue(this, interaction, this.interactionHandler);
+    } else if (interaction === "BASKET_RETURN") {
+      new BasketReturn(this, interaction, this.interactionHandler);
+    } else if (interaction === "GIFT_START") {
+      new GiftStart(this, interaction, this.interactionHandler);
     }
   }
 

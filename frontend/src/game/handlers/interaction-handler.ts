@@ -27,7 +27,10 @@ class InteractionHandler {
     const playerPos = this.level.player?.getPos();
     if (!playerPos) return undefined;
     for (const interaction of this.interactions) {
-      if (interaction.containsPoint(playerPos.x, playerPos.y)) {
+      if (
+        interaction.interaction &&
+        interaction.containsPoint(playerPos.x, playerPos.y)
+      ) {
         return interaction;
       }
     }
@@ -35,6 +38,9 @@ class InteractionHandler {
   }
 
   reset() {
+    for (const interaction of this.interactions) {
+      interaction.destroy();
+    }
     this.interactions = [];
   }
 }

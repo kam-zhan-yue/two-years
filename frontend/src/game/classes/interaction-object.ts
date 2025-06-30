@@ -97,6 +97,21 @@ class InteractionObject {
   update(playerPos: Phaser.Math.Vector2) {
     this.containsPoint(playerPos.x, playerPos.y);
   }
+
+  destroy() {
+    if (this.graphics) {
+      this.graphics.destroy();
+      this.graphics = undefined;
+    }
+    if (this.image) {
+      this.image.image.destroy();
+      this.image = undefined;
+    }
+    if (this.tooltip) {
+      this.tooltip.image.destroy();
+      this.tooltip = undefined;
+    }
+  }
 }
 
 export { InteractionObject };
