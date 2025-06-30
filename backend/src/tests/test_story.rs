@@ -101,7 +101,6 @@ mod tests {
         let node = story
             .interact("GAME_START".to_owned())
             .expect("Expected a StoryNode");
-        println!("Working 2");
 
         assert_eq!(
             node,
@@ -224,6 +223,10 @@ mod tests {
         );
 
         let node = story.get_node();
+        assert_eq!(node, StoryNode::Interaction("FOLLOW_UP".to_owned()));
+        let node = story
+            .interact("FOLLOW_UP".to_owned())
+            .expect("Expected a StoryNode");
         assert_eq!(node, StoryNode::End);
     }
 }

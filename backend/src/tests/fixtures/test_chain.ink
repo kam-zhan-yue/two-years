@@ -1,26 +1,34 @@
 NODE__START
-P1: There is no where to be but the present.
-P2: Indeed you are correct.
+Alex: There is no where to be but the present.
+Wato: Indeed you are correct.
 NODE__END
 
 NODE__START
-P1: I'm quenching for a coffee right now.
-P2: As am I.
+Alex: I'm quenching for a coffee right now.
+Wato: As am I.
 NODE__END
 
-QUESTION__START #P1
-P2: Shall we go down to the cafe at the end of the road?
+QUESTION__START #Alex
+Wato: Shall we go down to the cafe at the end of the road?
 + Why that is a mighty fine idea.
     -> CAFE
 + How dreadful.
+    -> NOT_CAFE
 
 ===CAFE===
-P1: Why this is a fine evening
+Alex: Why this is a fine evening
 NODE__END
+
+INTERACTION__FOLLOW_UP
 -> END
 
 ===NOT_CAFE===
-P1: Let's go to the beach instead.
-P2: Very well
+Alex: Let's go to the beach instead.
+Wato: Very well
 NODE__END
+
+
+INTERACTION__FOLLOW_UP
+
+
 -> END

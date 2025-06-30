@@ -1,5 +1,3 @@
-INTERACTION__GAME_START
-
 VAR food_1 = ""
 VAR food_2 = ""
 VAR fuckups = 0
@@ -261,7 +259,7 @@ Wato: I at least remember your birthday...
 Alex: Oh yeah? If you know so much about us, let's play a quiz.
 Wato: What, no I didn't agree to this.
 Alex: Too bad, the dialogue tree is linear at this point and there's no stopping it.
-What: What?
+Wato: What?
 All: QUIZ TIME!!!
 
 NODE__END
@@ -287,7 +285,7 @@ Alex: Let's start easy... What's the name of the beach we visited twice when in 
     ~correct += 1
     Alex: Correct! That was a freebie. I know you love that beach.
     Wato: I do, actually
-    -> A1_Q3_RESUME
+    -> A2_Q1_RESUME
 
 ===A2_Q1_RESUME===
 Alex: OK NEXT QUESTION!
@@ -337,9 +335,8 @@ Alex: This is a bit hard now. What date did we first meet in that astronomy clas
 
 ===A2_Q3_RESUME===
 Alex: Ok well, that's on me for making it too hard. My bad.
-Alex: Let's take a trip down memory lane.
-Alex: This is the final question. It's gonna be the hardest one so far. Make sure to use all of your brain power.
-Wato: Suuuuuureeee
+Wato: That qusetion was hard, no matter how you look at it.
+Alex: Ok, next question!
 NODE__END
 
 -> A2_Q4
@@ -451,10 +448,10 @@ NODE__END
 INTERACTION__BASKET_RETURN
 
 NODE__START
-Alex: Ok now come back here! I have some thing to show you.
-NODE__END
+Alex: Thanks for that, it was getting messy.
+Alex: Anyways... I have some thing to show you.
 
-INTERACTION__GIFT_START
+NODE__END
 
 NODE__START
 Alex: Close your eyes... 

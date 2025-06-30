@@ -1,18 +1,13 @@
-QUESTION__START #P2
-P1: What should we do today?
-+ -> BEACH
-+ -> RESTAURANT
-+ -> ARCADE
+QUESTION__START #Wato
+Alex: What should we do today?
++ Go to the beach
+    -> FINISH
++ Go to the restaurant
+    -> FINISH
++ Go to the arcade
+    -> FINISH
 
-    -> END
-===BEACH===
-Go to the beach
--> END
 
-===RESTAURANT===
-Go to the restaurant
--> END
-
-===ARCADE===
-Go to the arcade
+===FINISH===
+NODE__END
 -> END
