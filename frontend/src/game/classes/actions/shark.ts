@@ -11,7 +11,7 @@ class Shark extends Action {
       new Phaser.Math.Vector2(0, 0),
       "shark",
     );
-    playerTwo.putOnHead(shark, new Phaser.Math.Vector2(0, 0));
+    playerTwo.putOnHead(shark, new Phaser.Math.Vector2(-5, -20));
   }
 }
 

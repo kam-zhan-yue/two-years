@@ -58,7 +58,7 @@ export default class Player extends Character {
     } else {
       const direction = new PhaserMath.Vector2(x, y).normalize();
       const velocity = direction.scale(constants.speed);
-      this.body.setVelocity(velocity.x, velocity.y);
+      this.setVelocity(velocity);
       baseAnimation = "run";
     }
     this.play(baseAnimation, topDownAnimation);
@@ -66,7 +66,7 @@ export default class Player extends Character {
   }
 
   getPos() {
-    return new PhaserMath.Vector2(this.container.x, this.container.y);
+    return new PhaserMath.Vector2(this.body.x, this.body.y);
   }
 
   sendMessage() {
