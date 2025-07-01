@@ -74,12 +74,15 @@ const Story = () => {
 
       if (storyState.type === "dialogue") {
         if (storyState.body.lines.length > 0) {
-          const line = storyState.body.lines[0];
-          checkAction(line);
-          typewriterRef.current.setText(line.line);
+          const dialogue = storyState.body.lines[0];
+          console.info("What the fuck");
+          checkAction(dialogue);
+          typewriterRef.current.setText(dialogue.line);
         }
       } else if (storyState.type === "question") {
-        typewriterRef.current.setText(storyState.body.question.line);
+        const question = storyState.body.question;
+        checkAction(question);
+        typewriterRef.current.setText(question.line);
       } else if (storyState.type === "interaction") {
         game?.setInteraction(storyState.body);
       } else if (storyState.type === "end") {
@@ -104,7 +107,6 @@ const Story = () => {
         if (typewriterRef.current) {
           typewriterRef.current.setText(line.line);
         }
-
         checkAction(line);
         setLineIndex(lineIndex + 1);
       } else {
@@ -124,7 +126,9 @@ const Story = () => {
 
   const checkAction = useCallback(
     (line: DialogueLine) => {
+      console.info(`checkaction`);
       if (line.action && game) {
+        console.info(`processing ${line.action}`);
         game.processAction(line.action);
       }
     },

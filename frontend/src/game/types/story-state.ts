@@ -41,7 +41,7 @@ type StoryState =
 const DialogueLineSchema = z.object({
   speaker: z.string(),
   line: z.string(),
-  action: z.string().optional(),
+  action: z.string().optional().nullable(),
 });
 
 const StoryChoiceSchema = z.object({

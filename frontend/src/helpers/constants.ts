@@ -1,5 +1,5 @@
 export const constants = {
-  debug: true,
+  debug: false,
   speed: 100,
   emptyId: "0",
   playerOne: "1",
