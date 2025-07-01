@@ -1,4 +1,4 @@
-import { Math, Scene } from "phaser";
+import { Scene } from "phaser";
 import GameImage from "./classes/game-image";
 import Player from "./classes/player";
 import Npc from "./classes/npc";
@@ -18,6 +18,8 @@ import ObstacleHandler from "./handlers/obstacle.handler";
 import { PicnicBasket } from "./classes/setups/picnic-basket";
 import { BasketReturn } from "./classes/setups/basket-return";
 import { GiftStart } from "./classes/setups/gift-start";
+import type Character from "./classes/character";
+import { Shark } from "./classes/actions/shark";
 
 const PLAYER_ONE_SPAWN = new Phaser.Math.Vector2(-20, -70);
 const PLAYER_TWO_SPAWN = new Phaser.Math.Vector2(20, -70);
@@ -69,7 +71,7 @@ export class Level extends Scene {
     this.id = id;
     if (!this.player && this.inputHandler) {
       this.player = new Player(
-        this.physics,
+        this,
         spawnPoint,
         sprite,
         this.inputHandler,
@@ -78,6 +80,8 @@ export class Level extends Scene {
       this.obstacleHandler?.init(this.player);
       this.cameras.main.startFollow(this.player.body, false);
     }
+
+    new Shark(this);
   }
 
   removePlayer() {
@@ -112,11 +116,11 @@ export class Level extends Scene {
     this.updateState(state);
 
     if (this.player) {
-      if (storyState.type === "dialogue" || storyState.type === "question") {
-      } else {
-        this.interactionHandler?.update();
-        this.player.update();
-      }
+      // if (storyState.type === "dialogue" || storyState.type === "question") {
+      // } else {
+      this.interactionHandler?.update();
+      this.player.update();
+      // }
     }
 
     if (this.inputHandler?.isInteractDown()) {
@@ -185,9 +189,9 @@ export class Level extends Scene {
       const spawnPoint =
         id === constants.playerOne ? PLAYER_ONE_SPAWN : PLAYER_TWO_SPAWN;
       if (id === constants.playerOne) {
-        this.playerOneNpc = new Npc(this.physics, spawnPoint, "alex");
+        this.playerOneNpc = new Npc(this, spawnPoint, "alex");
       } else if (id === constants.playerTwo) {
-        this.playerTwoNpc = new Npc(this.physics, spawnPoint, "wato");
+        this.playerTwoNpc = new Npc(this, spawnPoint, "wato");
       }
     }
     if (id === constants.playerOne) {
@@ -195,5 +199,23 @@ export class Level extends Scene {
     } else if (id === constants.playerTwo) {
       this.playerTwoNpc?.update(player);
     }
+  }
+
+  getPlayerOne(): Character | undefined {
+    if (this.id === constants.playerOne) {
+      return this.player;
+    } else {
+      return this.playerOneNpc;
+    }
+    return undefined;
+  }
+
+  getPlayerTwo(): Character | undefined {
+    if (this.id === constants.playerTwo) {
+      return this.player;
+    } else {
+      return this.playerTwoNpc;
+    }
+    return undefined;
   }
 }

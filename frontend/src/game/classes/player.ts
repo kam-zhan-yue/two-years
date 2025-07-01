@@ -15,13 +15,13 @@ export default class Player extends Character {
   private send: SendJsonMessage;
 
   constructor(
-    physics: Phaser.Physics.Arcade.ArcadePhysics,
+    scene: Phaser.Scene,
     position: Phaser.Math.Vector2,
     textureKey: PlayerAnimation,
     inputHandler: InputHandler,
     send: SendJsonMessage,
   ) {
-    super(physics, position, textureKey);
+    super(scene, position, textureKey);
     this.inputHandler = inputHandler;
     this.send = send;
   }
@@ -66,7 +66,7 @@ export default class Player extends Character {
   }
 
   getPos() {
-    return new PhaserMath.Vector2(this.body.x, this.body.y);
+    return new PhaserMath.Vector2(this.container.x, this.container.y);
   }
 
   sendMessage() {

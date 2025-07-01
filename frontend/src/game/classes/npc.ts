@@ -4,11 +4,11 @@ import Character from "./character";
 
 export default class Npc extends Character {
   constructor(
-    physics: Phaser.Physics.Arcade.ArcadePhysics,
+    scene: Phaser.Scene,
     position: Phaser.Math.Vector2,
     textureKey: PlayerAnimation,
   ) {
-    super(physics, position, textureKey);
+    super(scene, position, textureKey);
   }
 
   update(state: PlayerState) {
