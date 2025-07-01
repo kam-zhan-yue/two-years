@@ -9,6 +9,7 @@ const INTERACTION: &str = "INTERACTION__";
 const NODE_START: &str = "NODE__START";
 const NODE_END: &str = "NODE__END";
 const QUESTION_START: &str = "QUESTION__START";
+const ACTION: &str = "action:";
 
 #[derive(Debug, Clone)]
 pub struct StoryState {
@@ -24,6 +25,12 @@ pub enum StoryInstruction {
     Question,
     Choice(i32),
     Interaction(String),
+}
+
+#[derive(Debug, Clone)]
+pub struct StoryLine {
+    pub line: String,
+    pub tags: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -51,6 +58,7 @@ pub struct StoryChoice {
 pub struct DialogueLine {
     pub speaker: Player,
     pub line: String,
+    pub action: Option<String>,
 }
 
 struct StoryHistory {
@@ -107,18 +115,18 @@ impl StoryState {
 
     fn get_next_node(&mut self, story: &mut Story) -> StoryNode {
         let line = get_next_line(story);
-        if line.is_empty() == true && story.get_current_choices().len() == 0 {
+        if line.line.is_empty() == true && story.get_current_choices().len() == 0 {
             return StoryNode::End;
         }
 
-        if line == NODE_START {
+        if line.line == NODE_START {
             self.instructions.push(StoryInstruction::Dialogue);
             self.process_dialogue(story)
-        } else if line == QUESTION_START {
+        } else if line.line == QUESTION_START {
             self.instructions.push(StoryInstruction::Question);
             self.process_question(story)
-        } else if line.starts_with(INTERACTION) {
-            let interaction = line.strip_prefix(INTERACTION).unwrap();
+        } else if line.line.starts_with(INTERACTION) {
+            let interaction = line.line.strip_prefix(INTERACTION).unwrap();
             self.instructions
                 .push(StoryInstruction::Interaction(interaction.to_owned()));
             self.process_interaction(interaction)
@@ -169,12 +177,12 @@ impl StoryState {
         match *instruction {
             StoryInstruction::Dialogue => {
                 let line = get_next_line(story);
-                assert_eq!(line, NODE_START);
+                assert_eq!(line.line, NODE_START);
                 self.process_dialogue(story)
             }
             StoryInstruction::Question => {
                 let line = get_next_line(story);
-                assert_eq!(line, QUESTION_START);
+                assert_eq!(line.line, QUESTION_START);
                 self.process_question(story)
             }
             StoryInstruction::Choice(choice) => {
@@ -184,8 +192,8 @@ impl StoryState {
             }
             StoryInstruction::Interaction(ref interaction) => {
                 let line = get_next_line(story);
-                assert!(line.starts_with(INTERACTION));
-                let interaction_id = line.strip_prefix(INTERACTION).unwrap();
+                assert!(line.line.starts_with(INTERACTION));
+                let interaction_id = line.line.strip_prefix(INTERACTION).unwrap();
                 assert!(interaction_id == interaction);
                 self.process_interaction(&interaction_id)
             }
@@ -196,7 +204,7 @@ impl StoryState {
         let mut lines: Vec<DialogueLine> = Vec::new();
         while story.can_continue() {
             let line = get_next_line(story);
-            if line == NODE_END {
+            if line.line == NODE_END {
                 break;
             } else {
                 let dialogue_line = process_line(&line);
@@ -250,16 +258,15 @@ impl StoryState {
         if let Some(StoryNode::Question { answerer, .. }) = nodes.last() {
             story.choose_choice_index(index as usize).unwrap();
             // Get the response from the question, if it cannot be split by the delimiter
-            let line = get_next_line(story);
+            let mut line = get_next_line(story);
             // Make a response if it can be split
-            let mut split = line.splitn(2, ':');
+            let mut split = line.line.splitn(2, ':');
             let response = if let (Some(_), Some(_)) = (split.next(), split.next()) {
                 process_line(&line)
             } else {
-                DialogueLine {
-                    speaker: *answerer,
-                    line,
-                }
+                line.line
+                    .insert_str(0, &format!("{}: ", &answerer.to_ink()));
+                process_line(&line)
             };
             // Continue with the story and return the dialogue
             let mut node = self.process_dialogue(story);
@@ -281,27 +288,41 @@ pub fn process_file(file_path: &str) -> String {
     fs::read_to_string(file_path).expect("Should have been able to read the file")
 }
 
-fn get_next_line(story: &mut Story) -> String {
+fn get_next_line(story: &mut Story) -> StoryLine {
     if !story.can_continue() {
-        return String::new();
+        return StoryLine {
+            line: String::new(),
+            tags: None,
+        };
     }
+
     let mut line = story.cont().unwrap();
     if line.ends_with('\n') {
-        line.truncate(line.len() - 1);
-        line
-    } else {
-        line
+        line.pop();
+    }
+
+    StoryLine {
+        line,
+        tags: story.get_current_tags().ok(),
     }
 }
 
-fn process_line(line: &str) -> DialogueLine {
-    let mut split = line.splitn(2, ':');
+fn process_line(line: &StoryLine) -> DialogueLine {
+    let mut split = line.line.splitn(2, ':');
     let speaker_str = split.next().unwrap_or("").trim();
     let line_str = split.next().unwrap_or("").trim();
 
     let speaker: Player = Player::from_ink(speaker_str);
+
+    let action = line.tags.as_ref().and_then(|tags| {
+        tags.iter()
+            .find_map(|tag| tag.strip_prefix(ACTION))
+            .map(|s| s.to_string())
+    });
+
     DialogueLine {
         speaker: speaker,
         line: line_str.to_owned(),
+        action,
     }
 }

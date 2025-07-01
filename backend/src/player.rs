@@ -26,6 +26,14 @@ impl Player {
         }
     }
 
+    pub fn to_ink(self) -> String {
+        match self {
+            Player::One => "Alex".to_owned(),
+            Player::Two => "Wato".to_owned(),
+            Player::None => "All".to_owned(),
+        }
+    }
+
     pub fn from_id(id: u64) -> Self {
         match id {
             PLAYER_ONE => Player::One,

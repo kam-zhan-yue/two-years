@@ -21,11 +21,13 @@ mod tests {
                 lines: vec![
                     DialogueLine {
                         speaker: Player::One,
-                        line: String::from("This is the start of a node. Nice to meet you")
+                        line: String::from("This is the start of a node. Nice to meet you"),
+                        action: None,
                     },
                     DialogueLine {
                         speaker: Player::Two,
-                        line: String::from("Hello! Nice to meet you")
+                        line: String::from("Hello! Nice to meet you"),
+                        action: None,
                     }
                 ]
             }
@@ -35,6 +37,37 @@ mod tests {
         assert_eq!(node, StoryNode::End);
     }
 
+    #[test]
+    fn test_dialogue_action() {
+        let mut story = StoryState {
+            json: process_file("src/tests/fixtures/test_dialogue_action.ink.json"),
+            instructions: Vec::new(),
+            player_one_ready: false,
+            player_two_ready: false,
+        };
+
+        let node = story.get_node();
+        assert_eq!(
+            node,
+            StoryNode::Dialogue {
+                lines: vec![
+                    DialogueLine {
+                        speaker: Player::One,
+                        line: String::from("This is an action!"),
+                        action: Some(String::from("SHARK")),
+                    },
+                    DialogueLine {
+                        speaker: Player::Two,
+                        line: String::from("This is another action!"),
+                        action: Some(String::from("FLOWERS")),
+                    }
+                ]
+            }
+        );
+
+        let node = story.get_node();
+        assert_eq!(node, StoryNode::End);
+    }
     #[test]
     fn test_question_node() {
         let mut story = StoryState {
@@ -50,7 +83,8 @@ mod tests {
             StoryNode::Question {
                 question: DialogueLine {
                     speaker: Player::One,
-                    line: String::from("What should we do today?")
+                    line: String::from("What should we do today?"),
+                    action: None,
                 },
                 answerer: Player::Two,
                 choices: vec![
@@ -76,7 +110,8 @@ mod tests {
             StoryNode::Dialogue {
                 lines: vec![DialogueLine {
                     speaker: Player::Two,
-                    line: String::from("Go to the beach")
+                    line: String::from("Go to the beach"),
+                    action: None,
                 }]
             }
         );
@@ -108,11 +143,13 @@ mod tests {
                 lines: vec![
                     DialogueLine {
                         speaker: Player::One,
-                        line: String::from("Do me a favour and fetch me a coffee.")
+                        line: String::from("Do me a favour and fetch me a coffee."),
+                        action: None,
                     },
                     DialogueLine {
                         speaker: Player::Two,
-                        line: String::from("Sure thing, love.")
+                        line: String::from("Sure thing, love."),
+                        action: None,
                     }
                 ]
             }
@@ -131,7 +168,8 @@ mod tests {
             StoryNode::Dialogue {
                 lines: vec![DialogueLine {
                     speaker: Player::One,
-                    line: String::from("Thank you very much.")
+                    line: String::from("Thank you very much."),
+                    action: None,
                 }]
             }
         );
@@ -157,11 +195,13 @@ mod tests {
                 lines: vec![
                     DialogueLine {
                         speaker: Player::One,
-                        line: String::from("There is no where to be but the present.")
+                        line: String::from("There is no where to be but the present."),
+                        action: None,
                     },
                     DialogueLine {
                         speaker: Player::Two,
-                        line: String::from("Indeed you are correct.")
+                        line: String::from("Indeed you are correct."),
+                        action: None,
                     }
                 ]
             }
@@ -173,11 +213,13 @@ mod tests {
                 lines: vec![
                     DialogueLine {
                         speaker: Player::One,
-                        line: String::from("I'm quenching for a coffee right now.")
+                        line: String::from("I'm quenching for a coffee right now."),
+                        action: None,
                     },
                     DialogueLine {
                         speaker: Player::Two,
-                        line: String::from("As am I.")
+                        line: String::from("As am I."),
+                        action: None,
                     }
                 ]
             }
@@ -189,7 +231,8 @@ mod tests {
             StoryNode::Question {
                 question: DialogueLine {
                     speaker: Player::Two,
-                    line: String::from("Shall we go down to the cafe at the end of the road?")
+                    line: String::from("Shall we go down to the cafe at the end of the road?"),
+                    action: None,
                 },
                 answerer: Player::One,
                 choices: vec![
@@ -212,11 +255,13 @@ mod tests {
                 lines: vec![
                     DialogueLine {
                         speaker: Player::One,
-                        line: String::from("Why that is a mighty fine idea.")
+                        line: String::from("Why that is a mighty fine idea."),
+                        action: None,
                     },
                     DialogueLine {
                         speaker: Player::One,
-                        line: String::from("Why this is a fine evening")
+                        line: String::from("Why this is a fine evening"),
+                        action: None,
                     }
                 ]
             }
