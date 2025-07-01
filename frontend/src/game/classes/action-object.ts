@@ -1,6 +1,6 @@
 import type { Level } from "../level";
 
-abstract class Action {
+abstract class ActionObject {
   protected level: Level;
 
   constructor(level: Level) {
@@ -11,4 +11,4 @@ abstract class Action {
   abstract activate(): void;
 }
 
-export { Action };
+export { ActionObject };

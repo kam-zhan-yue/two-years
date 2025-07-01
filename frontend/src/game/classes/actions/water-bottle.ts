@@ -1,18 +1,18 @@
 import { ActionObject } from "../action-object";
 import GameImage from "../game-image";
 
-class Shark extends ActionObject {
+class WaterBottle extends ActionObject {
   activate(): void {
     const player = this.level.getPlayerTwo();
     if (!player) return;
 
-    const shark = new GameImage(
+    const waterBottle = new GameImage(
       this.level,
       new Phaser.Math.Vector2(0, 0),
-      "shark",
+      "water-bottle",
     );
-    player.putOnHead(shark, new Phaser.Math.Vector2(-5, -20));
+    player.putOnHead(waterBottle, new Phaser.Math.Vector2(0, -17));
   }
 }
 
-export { Shark };
+export { WaterBottle };

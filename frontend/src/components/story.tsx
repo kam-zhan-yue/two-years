@@ -5,6 +5,7 @@ import {
   type StoryChoice,
   StoryStateSchema,
   type StoryState,
+  type DialogueLine,
 } from "@/game/types/story-state";
 import useWebSocket from "react-use-websocket";
 import { ECHO_URL } from "@/api/constants";
@@ -73,7 +74,9 @@ const Story = () => {
 
       if (storyState.type === "dialogue") {
         if (storyState.body.lines.length > 0) {
-          typewriterRef.current.setText(storyState.body.lines[0].line);
+          const line = storyState.body.lines[0];
+          checkAction(line);
+          typewriterRef.current.setText(line.line);
         }
       } else if (storyState.type === "question") {
         typewriterRef.current.setText(storyState.body.question.line);
@@ -97,12 +100,12 @@ const Story = () => {
   const onTypewriterNext = useCallback(() => {
     if (storyState.type === "dialogue") {
       if (lineIndex < storyState.body.lines.length - 1) {
+        const line = storyState.body.lines[lineIndex + 1];
         if (typewriterRef.current) {
-          typewriterRef.current.setText(
-            storyState.body.lines[lineIndex + 1].line,
-          );
+          typewriterRef.current.setText(line.line);
         }
 
+        checkAction(line);
         setLineIndex(lineIndex + 1);
       } else {
         // go to the next dialogue!
@@ -118,6 +121,15 @@ const Story = () => {
       }
     }
   }, [storyState, lineIndex, setLineIndex, typewriterRef]);
+
+  const checkAction = useCallback(
+    (line: DialogueLine) => {
+      if (line.action && game) {
+        game.processAction(line.action);
+      }
+    },
+    [game],
+  );
 
   const handleClick = useCallback(() => {
     if (typewriterRef.current) {

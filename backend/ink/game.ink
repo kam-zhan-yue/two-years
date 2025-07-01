@@ -463,7 +463,7 @@ NODE__END
 QUESTION__START #Alex
 Alex: (where did I put that gift?)
 + [A Giant Water Bottle]
-    Alex: Here's your gift! #action:bottle
+    Alex: Here's your gift! #action:WATER_BOTTLE
     Wato: WHY IS IT SO BIG.
     Wato: Why did you get me another one?
     Alex: Because you need to stay hydrated.
@@ -474,7 +474,7 @@ Alex: (where did I put that gift?)
     Alex: I'm happy you enjoy it
     -> A3_Q1_RESUME
 + [A Shark Plushie]
-    Alex: Here's your gift! #action:shark
+    Alex: Here's your gift! #action:SHARK
     Wato: Sharkie?!
     Alex: Actually, it's his sister.
     Wato: Aw, that's adorable.
@@ -497,7 +497,7 @@ NODE__END
 QUESTION__START #Wato
 Wato: Ok, my turn. I've been keeping this in my pocket all day.
 + [Mint Chocolate Ice Cream Cone]
-    Wato: Tada!
+    Wato: Tada! #action:ICE_CREAM
     Alex: I LOVE IT
     Wato: I knew you would. I'm surprised it's not melted by now.
     Alex: Temperature doesn't exist in this world.
@@ -509,7 +509,7 @@ Wato: Ok, my turn. I've been keeping this in my pocket all day.
     Alex: I fell straight for that.
     -> A3_Q2_RESUME
 + [Handmade Bracelet]
-    Wato: Tada!
+    Wato: Tada! #action:BRACELET
     Alex: OMG
     Wato: I know you lost the other one (maybe), so I made another.
     Alex: I'm so sorry for misplacing the other one even though I promised not to lose it...
@@ -530,7 +530,7 @@ NODE__START
 Alex: Now it's time for the final surprise.
 Wato: What do you mean?
 
-Alex: TADAAAA! #action:flowers
+Alex: TADAAAA! #action:FLOWERS
 Wato: AHHH THEY'RE BEAUTIFUL!!!
 Alex: Happy Two Year Anniversary!
 Wato: Thank you so much amor, I love these

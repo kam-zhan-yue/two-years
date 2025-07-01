@@ -8,7 +8,7 @@ import type { GameState } from "./types/game-state";
 import { constants } from "@/helpers/constants";
 import { useGameStore } from "@/store";
 import type { PlayerState } from "./types/player-state";
-import type { Interaction } from "./types/story-state";
+import type { Action, Interaction } from "./types/story-state";
 import { GameStart } from "./classes/setups/game-start";
 import { InteractionHandler } from "./handlers/interaction-handler";
 import { InteractionMessageSchema, MessageType } from "./types/messages";
@@ -20,6 +20,10 @@ import { BasketReturn } from "./classes/setups/basket-return";
 import { GiftStart } from "./classes/setups/gift-start";
 import type Character from "./classes/character";
 import { Shark } from "./classes/actions/shark";
+import { Bracelet } from "./classes/actions/bracelet";
+import { IceCream } from "./classes/actions/ice-cream";
+import { WaterBottle } from "./classes/actions/water-bottle";
+import { Flowers } from "./classes/actions/flowers";
 
 const PLAYER_ONE_SPAWN = new Phaser.Math.Vector2(-20, -70);
 const PLAYER_TWO_SPAWN = new Phaser.Math.Vector2(20, -70);
@@ -80,8 +84,6 @@ export class Level extends Scene {
       this.obstacleHandler?.init(this.player);
       this.cameras.main.startFollow(this.player.body, false);
     }
-
-    new Shark(this);
   }
 
   removePlayer() {
@@ -116,11 +118,11 @@ export class Level extends Scene {
     this.updateState(state);
 
     if (this.player) {
-      // if (storyState.type === "dialogue" || storyState.type === "question") {
-      // } else {
-      this.interactionHandler?.update();
-      this.player.update();
-      // }
+      if (storyState.type === "dialogue" || storyState.type === "question") {
+      } else {
+        this.interactionHandler?.update();
+        this.player.update();
+      }
     }
 
     if (this.inputHandler?.isInteractDown()) {
@@ -207,7 +209,6 @@ export class Level extends Scene {
     } else {
       return this.playerOneNpc;
     }
-    return undefined;
   }
 
   getPlayerTwo(): Character | undefined {
@@ -216,6 +217,25 @@ export class Level extends Scene {
     } else {
       return this.playerTwoNpc;
     }
-    return undefined;
+  }
+
+  processAction(action: Action) {
+    switch (action) {
+      case "SHARK":
+        new Shark(this);
+        break;
+      case "BRACELET":
+        new Bracelet(this);
+        break;
+      case "ICE_CREAM":
+        new IceCream(this);
+        break;
+      case "WATER_BOTTLE":
+        new WaterBottle(this);
+        break;
+      case "FLOWERS":
+        new Flowers(this);
+        break;
+    }
   }
 }

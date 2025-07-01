@@ -3,6 +3,7 @@ import { z } from "zod";
 interface DialogueLine {
   speaker: string;
   line: string;
+  action?: Action;
 }
 
 interface StoryChoice {
@@ -19,6 +20,8 @@ interface Question {
   answerer: string;
   choices: StoryChoice[];
 }
+
+type Action = "SHARK" | "WATER_BOTTLE" | "BRACELET" | "ICE_CREAM" | "FLOWERS";
 
 type Interaction =
   | ""
@@ -38,6 +41,7 @@ type StoryState =
 const DialogueLineSchema = z.object({
   speaker: z.string(),
   line: z.string(),
+  action: z.string().optional(),
 });
 
 const StoryChoiceSchema = z.object({
@@ -90,6 +94,7 @@ const defaultStoryState: StoryState = {
 };
 
 export {
+  type Action,
   type StoryState,
   type Question,
   type Interaction,
