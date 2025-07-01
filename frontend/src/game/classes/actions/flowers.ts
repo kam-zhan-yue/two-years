@@ -3,7 +3,7 @@ import GameImage from "../game-image";
 
 class Flowers extends ActionObject {
   activate(): void {
-    new GameImage(this.level, new Phaser.Math.Vector2(0, 0), "flowers");
+    new GameImage(this.level, new Phaser.Math.Vector2(0, 20), "flowers");
   }
 }
 

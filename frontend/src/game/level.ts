@@ -84,9 +84,6 @@ export class Level extends Scene {
       this.obstacleHandler?.init(this.player);
       this.cameras.main.startFollow(this.player.body, false);
     }
-
-    new Shark(this);
-    new IceCream(this);
   }
 
   removePlayer() {

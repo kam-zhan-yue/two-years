@@ -18,6 +18,7 @@ export class Boot extends Scene {
     this.load.image("ice-cream", "images/ice-cream.png");
     this.load.image("bracelet", "images/bracelet.png");
     this.load.image("water-bottle", "images/water-bottle.png");
+    this.load.image("flowers", "images/flowers.png");
 
     this.load.atlas("player", "atlas/character.png", "atlas/character.json");
     this.load.aseprite("alex", "atlas/alex.png", "atlas/alex.json");
