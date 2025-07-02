@@ -65,7 +65,6 @@ export default class Character {
 
   updateCharacter() {
     this.container.depth = this.body.y + this.body.height / 2;
-    console.info(`Depth is ${this.sprite.depth}`);
   }
 
   putOnHead(image: GameImage, offset: Phaser.Math.Vector2) {

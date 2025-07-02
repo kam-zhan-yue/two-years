@@ -77,16 +77,19 @@ const Story = () => {
           const dialogue = storyState.body.lines[0];
           console.info("What the fuck");
           checkAction(dialogue);
-          typewriterRef.current.setText(dialogue.line);
+          typewriterRef.current.setDialogueLine(dialogue);
         }
       } else if (storyState.type === "question") {
         const question = storyState.body.question;
         checkAction(question);
-        typewriterRef.current.setText(question.line);
+        typewriterRef.current.setDialogueLine(question);
       } else if (storyState.type === "interaction") {
         game?.setInteraction(storyState.body);
       } else if (storyState.type === "end") {
-        typewriterRef.current.setText("Story has ended.");
+        typewriterRef.current.setDialogueLine({
+          line: "The story has ended.",
+          speaker: "All",
+        });
       }
     }
   }, [
@@ -105,7 +108,7 @@ const Story = () => {
       if (lineIndex < storyState.body.lines.length - 1) {
         const line = storyState.body.lines[lineIndex + 1];
         if (typewriterRef.current) {
-          typewriterRef.current.setText(line.line);
+          typewriterRef.current.setDialogueLine(line);
         }
         checkAction(line);
         setLineIndex(lineIndex + 1);
@@ -173,26 +176,19 @@ const Story = () => {
     [dialogueSend],
   );
 
-  const canShow =
-    storyState.type === "dialogue" || storyState.type === "question";
-
   return (
     <div className="fixed w-full h-full" onClick={handleClick}>
       {choices.length > 0 && (
         <Choices choices={choices} onSelect={handleSelectChoice} />
       )}
       {waiting && <Waiting />}
-      <div
-        className={`${canShow ? "block" : "hidden"} fixed bottom-5 left-5 right-5 h-40 overflow-y-auto bg-white`}
-      >
-        <Typewriter
-          ref={typewriterRef}
-          delay={15}
-          fontSize={22}
-          onComplete={onTypewriterComplete}
-          onNext={onTypewriterNext}
-        />
-      </div>
+      <Typewriter
+        ref={typewriterRef}
+        delay={15}
+        fontSize={22}
+        onComplete={onTypewriterComplete}
+        onNext={onTypewriterNext}
+      />
     </div>
   );
 };
