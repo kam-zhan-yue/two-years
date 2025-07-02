@@ -98,24 +98,34 @@ const Typewriter = forwardRef<TypewriterHandle, TypewriterProps>(
       <div
         className={`${canShow ? "flex" : "hidden"} justify-center fixed bottom-5 w-full h-60`}
       >
-        <div className="w-4/5 bg-white">
+        <div className="w-4/5 dialogue-box">
           <div
             className="flex flex-row h-full items-end font-normal typewriter"
             style={{ fontSize: `${fontSize}px` }}
             onClick={handleClick}
           >
-            {speaker && <Speaker speaker={speaker} />}
-            <div className="flex flex-col h-full w-full max-w-4/6 p-2">
-              {speakerTitle && (
-                <>
-                  <div className="text-5xl">{speakerTitle}</div>
-                  <hr className="w-full border-t-2 border-gray-300 mt-0 mb-1" />
-                </>
-              )}
-              <div className="flex">
-                {state === TypewriterState.Finished ? line : currentText}
-              </div>
-            </div>
+            {speakerTitle && (
+              <>
+                {speaker && <Speaker speaker={speaker} />}
+                <div className="flex flex-col h-full w-full max-w-4/6 ml-6">
+                  {speakerTitle && (
+                    <div className="text-5xl">{speakerTitle}</div>
+                  )}
+                  <div className="flex">
+                    {state === TypewriterState.Finished ? line : currentText}
+                  </div>
+                </div>
+              </>
+            )}
+            {!speakerTitle && (
+              <>
+                <div className="flex-col h-full w-full">
+                  <div className="h-full flex justify-center text-center">
+                    {state === TypewriterState.Finished ? line : currentText}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
