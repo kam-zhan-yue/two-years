@@ -96,17 +96,17 @@ NODE__END
 ===A1_Q2===
 QUESTION__START #Wato
 Wato: Let's start with something light. There's not much to choose from
-+ [サラダ]
++ [Salad]
     ~food_1 = "salad"
     Wato: Funny, I haven't been craving Misdo recently
     Wato: Also, best to be healthy. We've been snacking too much...
     All: Wato shudders at the memory of over-snacking late at night, only to suffer the consequences in the following morning.
     -> A1_Q2_RESUME
-+ [バムクーヘン]
++ [Baumkuchen]
     ~food_1 = "baumkuchen"
     Wato: Oooo, I've missed these. Such a comfort food.
     -> A1_Q2_RESUME
-+ [ポン・デ・リング]
++ [Pon de Ring]
     ~food_1 = "pon de ring"
     Wato: Smells like a blast from the past.
     Wato: Wait, the past? It's only been two years since we starting eating these though?
@@ -124,20 +124,19 @@ NODE__END
 ===A1_Q3===
 QUESTION__START #Wato
 Wato: Now for the main course.
-+ [手作り親子丼]
++ [Oyakodon]
     ~food_2 = "oyakodon"
     Wato: Aw, how sweet. I always love eating this.
     Wato: ...
     Wato: (It's all cold now though)
     Wato: I'm sure it'll work out fine!
     -> A1_Q3_RESUME
-+ [ミートソースパスタ]
++ [Spaghetti Bolognese]
     ~food_2 = "pasta"
     Wato: I'VE BEEN CRAVING THIS ALL DAY.
     Wato: Into my stomach you will go.
     -> A1_Q3_RESUME
-    
-+ [ポン・デ・リング]
++ [Pon de Ring]
     ~food_2 = "pon de ring"
     { food_1 == "pon de ring":
         Wato: ... a second one can't hurt right...?

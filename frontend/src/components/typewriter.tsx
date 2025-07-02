@@ -5,7 +5,7 @@ import {
   useImperativeHandle,
   useState,
 } from "react";
-import "../styles/typewriter.css";
+import "../styles.css";
 import type { DialogueLine } from "@/game/types/story-state";
 import { useGameStore } from "@/store";
 import { Speaker } from "./speaker";
