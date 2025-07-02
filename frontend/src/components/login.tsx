@@ -4,6 +4,7 @@ import { constants } from "@/helpers/constants";
 import { GameFlow, useGameStore } from "@/store";
 import { useCallback, useEffect, useState } from "react";
 import "../styles.css";
+import { AnimatedDots } from "./animated-dots";
 
 const Login = () => {
   const [id, setId] = useState(constants.emptyId);
@@ -47,14 +48,16 @@ const Login = () => {
 
   if (poll.isPending) {
     return (
-      <div className="fixed inset-y-40">Waiting for server to spin up...</div>
+      <h1 className="fixed inset-y-40 pixel-font text-5xl">
+        Waiting for server to spin up <AnimatedDots />
+      </h1>
     );
   }
   if (poll.isError) {
     return (
-      <div className="fixed inset-y-40">
+      <h1 className="fixed inset-y-40 pixel-font text-5xl">
         Server failed to spin up. {poll.error.message}
-      </div>
+      </h1>
     );
   }
 
