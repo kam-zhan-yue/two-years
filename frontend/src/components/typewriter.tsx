@@ -112,11 +112,9 @@ const Typewriter = forwardRef<TypewriterHandle, TypewriterProps>(
                   <hr className="w-full border-t-2 border-gray-300 mt-0 mb-1" />
                 </>
               )}
-              {state === TypewriterState.Finished
-                ? line
-                : currentText
-                    .split("")
-                    .map((char, idx) => <span key={idx}>{char}</span>)}
+              <div className="flex">
+                {state === TypewriterState.Finished ? line : currentText}
+              </div>
             </div>
           </div>
         </div>
