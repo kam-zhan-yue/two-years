@@ -3,6 +3,7 @@ import { usePoll } from "@/api/hooks/use-poll";
 import { constants } from "@/helpers/constants";
 import { GameFlow, useGameStore } from "@/store";
 import { useCallback, useEffect, useState } from "react";
+import "../styles.css";
 
 const Login = () => {
   const [id, setId] = useState(constants.emptyId);
@@ -57,25 +58,28 @@ const Login = () => {
     );
   }
 
+  const playerOneImage = playerOne
+    ? "images/alex-profile-inactive.png"
+    : "images/alex-profile-active.png";
+  const playerTwoImage = playerTwo
+    ? "images/wato-profile-inactive.png"
+    : "images/wato-profile-active.png";
+
   return (
     <>
       {flow === GameFlow.Menu && (
-        <div className="fixed inset-y-40">
-          <div className="flex gap-2">
-            <button
-              disabled={playerOne}
+        <div className="absolute w-full h-full">
+          <div className="flex w-full h-full justify-center items-center gap-10">
+            <img
+              className={`${!playerOne ? "cursor-pointer" : ""} pixel w-60`}
               onClick={handlePlayerOneClicked}
-              className="px-4 py-2 rounded bg-teal-500 text-white cursor-pointer disabled:bg-teal-200 disabled:text-teal-600 disabled:cursor-not-allowed"
-            >
-              Player One
-            </button>
-            <button
-              disabled={playerTwo}
+              src={playerOneImage}
+            />
+            <img
+              className={`${!playerTwo ? "cursor-pointer" : ""} pixel w-60`}
               onClick={handlePlayerTwoClicked}
-              className="px-4 py-2 rounded bg-red-500 text-white cursor-pointer disabled:bg-red-200 disabled:text-red-600 disabled:cursor-not-allowed"
-            >
-              Player Two
-            </button>
+              src={playerTwoImage}
+            />
           </div>
         </div>
       )}
