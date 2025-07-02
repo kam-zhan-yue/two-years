@@ -1,6 +1,5 @@
 import { InteractionObject } from "../classes/interaction-object";
 import type { Level } from "../level";
-import type { StoryState } from "../types/story-state";
 
 class InteractionHandler {
   private level: Level;
