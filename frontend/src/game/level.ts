@@ -119,6 +119,7 @@ export class Level extends Scene {
 
     if (this.player) {
       if (storyState.type === "dialogue" || storyState.type === "question") {
+        this.interactionHandler?.hide();
       } else {
         this.interactionHandler?.update();
         this.player.update();

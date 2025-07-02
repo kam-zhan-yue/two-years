@@ -1,5 +1,6 @@
-import type { InteractionObject } from "../classes/interaction-object";
+import { InteractionObject } from "../classes/interaction-object";
 import type { Level } from "../level";
+import type { StoryState } from "../types/story-state";
 
 class InteractionHandler {
   private level: Level;
@@ -21,6 +22,12 @@ class InteractionHandler {
         interaction.update(player.getPos());
       });
     }
+  }
+
+  hide() {
+    this.interactions.forEach((interaction) => {
+      interaction.hideTooltip();
+    });
   }
 
   getCurrentInteraction(): InteractionObject | undefined {
