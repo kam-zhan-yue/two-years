@@ -3,7 +3,7 @@ VAR food_2 = ""
 VAR fuckups = 0
 VAR correct = 0
 
--> DEBUG
+-> START
 
 ===DEBUG==
 QUESTION__START #Alex
@@ -154,7 +154,6 @@ Wato: Now for the main course.
 ===A1_Q3_RESUME===
 Wato: Ok that seems good enough on the food side.
 Wato: Ah! Can't forget the mate! It isn't a picnic without one.
-All: Wato returns to the riverside.
 NODE__END
 
 -> A1_D3
@@ -343,7 +342,7 @@ NODE__END
 ===A2_Q4===
 QUESTION__START #Wato
 Alex: Where was the location of our fourth date / time we spent together?
-+ 鴨川
++ Kamogawa
     ~correct += 1
     Alex: Correct! That was where we had the 肉まん you brought back from 大阪. Technically isn't a date, but it is a significant moment we spent together.
     Wato: I remember that! The 肉まん were so stale because I left them in my room for so long...
@@ -351,12 +350,12 @@ Alex: Where was the location of our fourth date / time we spent together?
     Alex: I still enjoyed them though!
     Wato: 🥰
     -> A2_Q4_RESUME
-+ みずき寮
++ Mizuki Dorm
     Alex: BZZT, INCORRECT! We spent a lot of time in みずき寮 but the time we spent (failing) to bake a cafe was in our later dates.
     Wato: That's not fair! How am I expected to remember that?
     Alex: You're meant to be the expert here, I just made the game.
     -> A2_Q4_RESUME
-+ 祇園祭り
++ Gion Matsuri
     Alex: BZZT, INCORRECT! This happened in July! Much later in the timeline.
     Wato: Argh! I should have known that.
     -> A2_Q4_RESUME
