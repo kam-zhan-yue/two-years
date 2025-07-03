@@ -8,7 +8,7 @@ class PicnicContinue extends InteractionSetup {
         "picnic-mat",
         this.scene,
         new Phaser.Math.Vector2(0, 10),
-        new Phaser.Math.Vector2(50, 50),
+        new Phaser.Math.Vector2(150, 150),
         "picnic-mat",
         this.interaction,
         -500,

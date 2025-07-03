@@ -35,6 +35,9 @@ const Story = () => {
   const [choices, setChoices] = useState<StoryChoice[]>([]);
   const typewriterRef = useRef<TypewriterHandle>(null);
 
+  // Audio Stuff
+  const sfxAction = new Audio("/audio/boom.ogg");
+
   useEffect(() => {
     game?.initDialogue(dialogueSend);
   }, [game, dialogueSend]);
@@ -130,10 +133,11 @@ const Story = () => {
   const checkAction = useCallback(
     (line: DialogueLine) => {
       if (line.action && game) {
+        sfxAction.play();
         game.processAction(line.action);
       }
     },
-    [game],
+    [game, sfxAction],
   );
 
   const handleClick = useCallback(() => {

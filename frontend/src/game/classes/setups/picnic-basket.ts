@@ -17,7 +17,7 @@ class PicnicBasket extends InteractionSetup {
         "picnic-basket",
         this.scene,
         new Phaser.Math.Vector2(0, 10),
-        new Phaser.Math.Vector2(50, 50),
+        new Phaser.Math.Vector2(75, 75),
         "picnic-basket",
         this.interaction,
       ),
