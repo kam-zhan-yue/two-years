@@ -14,7 +14,7 @@ const Choices = ({ choices, onSelect }: ChoiceProps) => {
           <button
             key={choice.index}
             onClick={() => onSelect(choice.index)}
-            className="pixel-font block w-full text-lg font-semibold bg-amber-100 hover:bg-blue-200 cursor-pointer rounded-md px-4 py-2 transition-colors duration-150"
+            className="pixel-font select-none block w-full text-lg font-semibold bg-amber-100 hover:bg-blue-200 cursor-pointer rounded-md px-4 py-2 transition-colors duration-150"
           >
             {choice.text}
           </button>

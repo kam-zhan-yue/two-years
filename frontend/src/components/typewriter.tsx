@@ -31,6 +31,7 @@ interface TypewriterHandle {
 
 const Typewriter = forwardRef<TypewriterHandle, TypewriterProps>(
   ({ delay, fontSize, onComplete, onNext }, ref) => {
+    const sfxButton = new Audio("/audio/button.ogg");
     const [speaker, setSpeaker] = useState("");
     const [line, setLine] = useState("");
     const [currentText, setCurrentText] = useState("");
@@ -50,6 +51,8 @@ const Typewriter = forwardRef<TypewriterHandle, TypewriterProps>(
     );
 
     const handleClick = useCallback(() => {
+      sfxButton.currentTime = 0;
+      sfxButton.play();
       if (currentText.length !== line.length) {
         setCurrentIndex(line.length);
         setCurrentText(line);

@@ -2,6 +2,8 @@ import { z } from "zod";
 import type { CharacterAnimation } from "../classes/animation";
 import { Math } from "phaser";
 
+type PlayerName = "Alex" | "Wato" | "All";
+
 interface PlayerState {
   id: string;
   position: Math.Vector2;
@@ -34,4 +36,10 @@ const defaultPlayerState: PlayerState = {
   animation: "alex-idle-down",
 };
 
-export { type PlayerState, RawPlayerSchema, PlayerSchema, defaultPlayerState };
+export {
+  type PlayerName,
+  type PlayerState,
+  RawPlayerSchema,
+  PlayerSchema,
+  defaultPlayerState,
+};

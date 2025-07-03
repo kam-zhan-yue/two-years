@@ -7,6 +7,7 @@ import "../styles.css";
 import { AnimatedDots } from "./animated-dots";
 
 const Login = () => {
+  const bgm = new Audio("/audio/beats.mp3");
   const [id, setId] = useState(constants.emptyId);
   const poll = usePoll();
   const connect = useConnect(id);
@@ -39,12 +40,16 @@ const Login = () => {
   }, [gameState, setPlayerOne, setPlayerTwo]);
 
   const handlePlayerOneClicked = useCallback(() => {
+    bgm.loop = true;
+    bgm.play();
     setId(constants.playerOne);
-  }, [setId]);
+  }, [setId, bgm]);
 
   const handlePlayerTwoClicked = useCallback(() => {
+    bgm.loop = true;
+    bgm.play();
     setId(constants.playerTwo);
-  }, [setId]);
+  }, [setId, bgm]);
 
   if (poll.isPending) {
     return (

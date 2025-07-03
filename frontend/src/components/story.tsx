@@ -129,9 +129,7 @@ const Story = () => {
 
   const checkAction = useCallback(
     (line: DialogueLine) => {
-      console.info(`checkaction`);
       if (line.action && game) {
-        console.info(`processing ${line.action}`);
         game.processAction(line.action);
       }
     },
